@@ -5,12 +5,28 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL4;
 using System.IO;
+using OpenTK;
 
 namespace Alloy.Assets
 {
     public class Shader : Asset
     {
         public int Program { get; private set; }
+
+        public struct Uniform
+        {
+            public struct Invalid { }
+            public Type type;
+            public string name;
+        }
+        public List<Uniform> uniforms { get; private set; } = new List<Uniform>();
+        public int uniformCount
+        {
+            get
+            {
+                return uniforms.Count;
+            }
+        }
 
         private string vertexCode = string.Empty;
         private string fragmentCode = string.Empty;
@@ -46,6 +62,29 @@ namespace Alloy.Assets
                         {
                             target = ShaderCodeTarget.Fragment;
                             continue;
+                        }
+                        //Find Shader Uniforms
+                        var splitLine = line.Split(' ');
+                        if(splitLine.Length > 0)
+                        {
+                            if(splitLine.Contains("uniform"))
+                            {
+                                string name = splitLine.Last().Remove(splitLine.Last().Length - 1);
+                                Type type = typeof(Uniform.Invalid);
+                                if (splitLine.Contains("float"))
+                                    type = typeof(float);
+                                else if (splitLine.Contains("int"))
+                                    type = typeof(int);
+                                else if (splitLine.Contains("vec2"))
+                                    type = typeof(Vector2);
+                                else if (splitLine.Contains("vec3"))
+                                    type = typeof(Vector3);
+                                else if (splitLine.Contains("vec4"))
+                                    type = typeof(Vector4);
+                                else if (splitLine.Contains("mat4"))
+                                    type = typeof(Matrix4);
+                                uniforms.Add(new Uniform { name = name, type = type });
+                            }
                         }
                         switch (target)
                         {
@@ -108,6 +147,20 @@ namespace Alloy.Assets
         public void Use()
         {
             GL.UseProgram(Program);
+        }
+
+        public Uniform GetUniform(int idx)
+        {
+            if (idx >= 0 && idx < uniforms.Count)
+                return uniforms[idx];
+            return new Uniform { name = "Invalid Index!", type = typeof(Uniform.Invalid) };
+        }
+        public  Uniform GetUniform(string name)
+        {
+            foreach (Uniform u in uniforms)
+                if (u.name == name)
+                    return u;
+            return new Uniform { name = "Invalid Name!", type = typeof(Uniform.Invalid) };
         }
     }
 }
