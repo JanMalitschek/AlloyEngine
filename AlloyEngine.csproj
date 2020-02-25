@@ -58,8 +58,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderPipeline.cs" />
+    <Compile Include="Scene.cs" />
     <Compile Include="Time.cs" />
     <Compile Include="Transform.cs" />
+    <Compile Include="Utility\Tree.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
