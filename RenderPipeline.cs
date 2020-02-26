@@ -14,8 +14,8 @@ namespace Alloy
     {
         public static Camera activeCamera;
 
-        public static Matrix4 ViewMat { get; private set; }
-        public static Matrix4 ProjMat { get; private set; }
+        public static Matrix4 ViewMat;
+        public static Matrix4 ProjMat;
 
         public static float aspectRatio = 1.0f;
 
@@ -26,9 +26,9 @@ namespace Alloy
                 viewTransform = activeCamera.transform;
             var T = Matrix4.CreateTranslation(viewTransform.position);
             var eulerAngles = viewTransform.rotation.ToAxisAngle();
-            var Rx = Matrix4.CreateRotationX(eulerAngles.X);
-            var Ry = Matrix4.CreateRotationX(eulerAngles.Y);
-            var Rz = Matrix4.CreateRotationX(eulerAngles.Z);
+            var Rx = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(eulerAngles.X));
+            var Ry = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(eulerAngles.Y));
+            var Rz = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(eulerAngles.Z));
             var R = Rz * Ry * Rx;
             var S = Matrix4.CreateScale(viewTransform.scale);
             ViewMat = T * R * S;

@@ -13,6 +13,13 @@ namespace Alloy
         public string name;
         public List<string> tags;
 
+        public Entity()
+        {
+            transform = new Transform();
+            tags = new List<string>();
+            components = new List<Component>();
+        }
+
         #region Layers
         public int Layer { get; private set; } = 0x0000;
         public void AddToLayer(int layerID)
@@ -47,10 +54,11 @@ namespace Alloy
         public Transform transform;
         #region Components
         private List<Component> components;
-        public void AddComponent<T>() where T : Component
+        public T AddComponent<T>() where T : Component
         {
-            components.Add(default(T));
+            components.Add(Activator.CreateInstance<T>());
             components.Last().transform = this.transform;
+            return components.Last() as T;
         }
         public T GetComponent<T>() where T : Component                                                                                      
         {

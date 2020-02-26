@@ -65,27 +65,20 @@ namespace Alloy.Utility
         public Tree()
         {
             root = new List<Branch<T>>();
-            Flattened = new List<Branch<T>>();
-        }
-        public List<Branch<T>> Flattened { get; private set; }
-        public List<T> ToList(int recursionDepth = 16)
-        {
-            List<T> l = new List<T>();
-            foreach (var b in root)
-                IterateThroughTree(l, b, recursionDepth);
-            return l;
-        }
-        private void IterateThroughTree(List<T> l, Branch<T> b, int recursionDepth)
-        {
-            if (recursionDepth-- <= 0) return;
-            l.Add(b.Value);
-            foreach (var leaf in b.Branches)
-                IterateThroughTree(l, leaf, recursionDepth);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            yield break;
+            foreach (var b in root)
+                yield return GetBranches(b);
+        }
+
+        private IEnumerable<Branch<T>> GetBranches(Branch<T> b)
+        {
+            yield return b;
+            if (b.BranchCount > 0)
+                foreach (var subBranch in b.Branches)
+                    GetBranches(subBranch);
         }
     }
 }

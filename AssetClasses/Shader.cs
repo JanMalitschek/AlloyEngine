@@ -83,6 +83,8 @@ namespace Alloy.Assets
                                     type = typeof(Vector4);
                                 else if (splitLine.Contains("mat4"))
                                     type = typeof(Matrix4);
+                                else if (splitLine.Contains("sampler2D"))
+                                    type = typeof(Texture);
                                 uniforms.Add(new Uniform { name = name, type = type });
                             }
                         }
@@ -155,12 +157,22 @@ namespace Alloy.Assets
                 return uniforms[idx];
             return new Uniform { name = "Invalid Index!", type = typeof(Uniform.Invalid) };
         }
-        public  Uniform GetUniform(string name)
+        public Uniform GetUniform(string name)
         {
             foreach (Uniform u in uniforms)
                 if (u.name == name)
                     return u;
             return new Uniform { name = "Invalid Name!", type = typeof(Uniform.Invalid) };
+        }
+
+        public int GetUniformLocation(string name)
+        {
+            return GL.GetUniformLocation(Program, name);
+        }
+
+        protected override void SaveMetaData(out List<MetaDataEntry> metaData)
+        {
+            metaData = new List<MetaDataEntry>();
         }
     }
 }
