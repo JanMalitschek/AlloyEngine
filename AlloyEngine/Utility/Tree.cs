@@ -7,22 +7,23 @@ using System.Threading.Tasks;
 
 namespace Alloy.Utility
 {
-    class Tree<T> : IEnumerable
+    public class Tree<T> : IEnumerable
     {
         public class Branch<U>
         {
             public U Value { get; set; }
             public List<Branch<U>> Branches { get; private set; }
             public int Depth { get; private set; }
+            private Branch<U> parent;
             public Branch<U> Parent { 
                 get
                 {
-                    return Parent;
+                    return parent;
                 }
                 private set
                 {
-                    Parent = value;
-                    Depth = Parent == null ? 0 : (Parent.Depth + 1);
+                    parent = value;
+                    Depth = parent == null ? 0 : (parent.Depth + 1);
                 }
             }
             public int BranchCount
@@ -60,6 +61,11 @@ namespace Alloy.Utility
                 }
                 return false;
             }
+            public Branch<U> AddItem(U item)
+            {
+                Branches.Add(new Branch<U>(item, this));
+                return Branches.Last();
+            }
         }
         public List<Branch<T>> root { get; private set; }
         public Tree()
@@ -79,6 +85,12 @@ namespace Alloy.Utility
             if (b.BranchCount > 0)
                 foreach (var subBranch in b.Branches)
                     GetBranches(subBranch);
+        }
+
+        public Branch<T> AddItem(T item)
+        {
+            root.Add(new Branch<T>(item));
+            return root.Last();
         }
     }
 }

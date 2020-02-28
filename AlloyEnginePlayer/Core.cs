@@ -12,6 +12,7 @@ namespace Alloy
 {
     class Core : GameWindow
     {
+        Scene scene = new Scene("Assets/Scenes/Sample.alloy");
 
         public Core(uint width, uint height, GraphicsMode graphicsMode, string title) : base((int)width, (int)height, graphicsMode, title)
         {
@@ -24,6 +25,11 @@ namespace Alloy
             base.OnLoad(e);
             Logging.LogInfo(this, "Initializing");
             AssetDatabase.Init();
+
+            var entitiy = scene.hierarchy.AddItem(new Entity("Camera"));
+            entitiy.Value.AddComponent<Alloy.Components.Camera>();
+            entitiy.AddItem(new Entity("Child Entity"));
+            scene.SaveScene(scene.Path);
         }
 
         //Loop

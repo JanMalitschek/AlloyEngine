@@ -7,14 +7,15 @@ using Alloy.Components;
 
 namespace Alloy
 {
-    class Entity
+    public class Entity
     {
         public bool active { get; private set; }
         public string name;
         public List<string> tags;
 
-        public Entity()
+        public Entity(string name = "New Entity")
         {
+            this.name = name;
             transform = new Transform();
             tags = new List<string>();
             components = new List<Component>();
@@ -53,7 +54,7 @@ namespace Alloy
 
         public Transform transform;
         #region Components
-        private List<Component> components;
+        public List<Component> components { get; private set; }
         public T AddComponent<T>() where T : Component
         {
             components.Add(Activator.CreateInstance<T>());
