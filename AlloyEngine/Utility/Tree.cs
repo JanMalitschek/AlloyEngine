@@ -92,5 +92,10 @@ namespace Alloy.Utility
             root.Add(new Branch<T>(item));
             return root.Last();
         }
+
+        public void Clear()
+        {
+            root.Clear();
+        }
     }
 }

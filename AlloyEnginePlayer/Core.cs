@@ -26,10 +26,12 @@ namespace Alloy
             Logging.LogInfo(this, "Initializing");
             AssetDatabase.Init();
 
-            var entitiy = scene.hierarchy.AddItem(new Entity("Camera"));
-            entitiy.Value.AddComponent<Alloy.Components.Camera>();
-            entitiy.AddItem(new Entity("Child Entity"));
-            scene.SaveScene(scene.Path);
+            //var entity = scene.AddEntity("Camera");
+            //entity.Value.AddComponent<Alloy.Components.Camera>();
+            //scene.AddEntity(entity, "Child Entity");
+            //scene.SaveScene(scene.Path);
+
+            scene.LoadScene(scene.Path);
         }
 
         //Loop

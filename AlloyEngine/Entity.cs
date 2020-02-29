@@ -12,17 +12,20 @@ namespace Alloy
         public bool active { get; private set; }
         public string name;
         public List<string> tags;
+        public int ID { get; private set; }
 
-        public Entity(string name = "New Entity")
+        public Entity(int id, string name = "New Entity")
         {
             this.name = name;
+            active = true;
             transform = new Transform();
             tags = new List<string>();
             components = new List<Component>();
+            ID = id;
         }
 
         #region Layers
-        public int Layer { get; private set; } = 0x0000;
+        public int Layer { get; set; } = 0x0000;
         public void AddToLayer(int layerID)
         {
             if (layerID < 32 && layerID >= 0)
@@ -60,6 +63,16 @@ namespace Alloy
             components.Add(Activator.CreateInstance<T>());
             components.Last().transform = this.transform;
             return components.Last() as T;
+        }
+        public object AddComponent(Type t)
+        {
+            if (t.IsSubclassOf(typeof(Component)))
+            {
+                components.Add(Activator.CreateInstance(t) as Component);
+                return components.Last();
+            }
+            else
+                return null;
         }
         public T GetComponent<T>() where T : Component                                                                                      
         {
