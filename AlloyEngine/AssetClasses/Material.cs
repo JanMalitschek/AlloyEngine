@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Alloy.Utility;
 
 namespace Alloy.Assets
 {
@@ -58,29 +59,15 @@ namespace Alloy.Assets
 
         protected override void Save()
         {
-            XmlDocument xml = new XmlDocument();
-            XmlNode root = xml.CreateElement("Material");
-            xml.AppendChild(root);
-            XmlNode shaderNode = xml.CreateElement("Shader");
-            root.AppendChild(shaderNode);
-            shaderNode.InnerText = shader.ID.ToString();
-            XmlNode uniformsNode = xml.CreateElement("Uniforms");
-            root.AppendChild(uniformsNode);
+            XMLAbstraction xml = new XMLAbstraction("Material");
+            xml.AddNode("Shader", shader.ID.ToString());
+            var uniformsNode = xml.AddNode("Uniforms");
             foreach (Shader.Uniform u in Uniforms)
             {
-                XmlNode uniformNode = xml.CreateElement("Uniform");
-                XmlAttribute nameAtt = xml.CreateAttribute("name");
-                nameAtt.Value = u.name;
-                uniformNode.Attributes.Append(nameAtt);
-                XmlAttribute typeAtt = xml.CreateAttribute("type");
-                typeAtt.Value = u.type.FullName;
-                uniformNode.Attributes.Append(nameAtt);
-                XmlAttribute valueAtt = xml.CreateAttribute("value");
-                if (u.type.IsSubclassOf(typeof(Asset)))
-                    valueAtt.Value = (u.value as Asset).ID.ToString();
-                else
-                    valueAtt.Value = u.value.ToString();
-                uniformNode.Attributes.Append(valueAtt);
+                var uniformNode = uniformsNode.AddNode("Uniform");
+                uniformsNode.AddAttribute("name", u.name);
+                uniformsNode.AddAttribute("type", u.type.FullName);
+                uniformsNode.AddAttribute("value", u.type.IsSubclassOf(typeof(Asset)) ? (u.value as Asset).ID.ToString() : u.value.ToString());
             }
             xml.Save(Path);
         }
