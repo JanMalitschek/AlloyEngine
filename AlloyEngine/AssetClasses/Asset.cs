@@ -30,6 +30,9 @@ namespace Alloy.Assets
         public Asset(string path)
         {
             Path = path;
+            if (HasMetaData(path))
+                foreach (int i in LoadRequiredAssetIDs())
+                    AssetDatabase.Load(i);
         }
 
         public struct MetaDataEntry
@@ -64,32 +67,89 @@ namespace Alloy.Assets
         {
             List<MetaDataEntry> metaData = new List<MetaDataEntry>();
             SaveMetaData(out metaData);
-            if(metaData.Count > 0)
+
+            XmlDocument xml = new XmlDocument();
+            XmlNode root = xml.CreateElement("Metadata");
+            XmlAttribute idAtt = xml.CreateAttribute("ID");
+            idAtt.Value = ID.ToString();
+            xml.AppendChild(root);
+
+            //Required Assets
+            XmlNode requiredAssets = xml.CreateElement("RequiredAssets");
+            root.AppendChild(requiredAssets);
+            List<int> requiredAtomics = new List<int>();
+            List<int> requiredComposed = new List<int>();
+            SaveRequiredAssetIDs(out requiredAtomics, out requiredComposed);
+            foreach(int a in requiredAtomics)
             {
-                XmlDocument xml = new XmlDocument();
-                XmlNode root = xml.CreateElement("Metadata");
-                XmlAttribute idAtt = xml.CreateAttribute("ID");
-                idAtt.Value = ID.ToString();
-                xml.AppendChild(root);
-                foreach(var e in metaData)
-                {
-                    XmlNode entry = xml.CreateElement("Data");
-                    XmlAttribute name = xml.CreateAttribute("Name");
-                    name.Value = e.key;
-                    entry.Attributes.Append(name);
-                    XmlAttribute type = xml.CreateAttribute("Type");
-                    type.Value = e.type.Name;
-                    entry.Attributes.Append(type);
-                    XmlAttribute value = xml.CreateAttribute("Value");
-                    value.Value = e.value.ToString();
-                    entry.Attributes.Append(value);
-                    root.AppendChild(entry);
-                }
-                
-                Logging.LogInfo(this, $"Saving Metadata for {Name}");
-                xml.Save(MetaDataPath);
+                XmlNode iDNode = xml.CreateElement("ID");
+                iDNode.InnerText = a.ToString();
+                requiredAssets.AppendChild(iDNode);
             }
+            foreach (int c in requiredComposed)
+            {
+                XmlNode iDNode = xml.CreateElement("ID");
+                iDNode.InnerText = c.ToString();
+                requiredAssets.AppendChild(iDNode);
+            }
+
+            //Entries
+            foreach (var e in metaData)
+            {
+                XmlNode entry = xml.CreateElement("Data");
+                XmlAttribute name = xml.CreateAttribute("name");
+                name.Value = e.key;
+                entry.Attributes.Append(name);
+                XmlAttribute type = xml.CreateAttribute("type");
+                type.Value = e.type.FullName;
+                entry.Attributes.Append(type);
+                XmlAttribute value = xml.CreateAttribute("value");
+                value.Value = e.value.ToString();
+                entry.Attributes.Append(value);
+                root.AppendChild(entry);
+            }
+                
+            Logging.LogInfo(this, $"Saving Metadata for {Name}");
+            xml.Save(MetaDataPath);
         }
         protected abstract void SaveMetaData(out List<MetaDataEntry> metaData);
+        protected List<MetaDataEntry> LoadMetaData()
+        {
+            List<MetaDataEntry> metaData = new List<MetaDataEntry>();
+            XmlDocument xml = new XmlDocument();
+            xml.Load(MetaDataPath);
+            XmlNodeList entries = xml.SelectNodes("//Metadata/*[local-name()='Data']");
+            foreach(XmlNode e in entries)
+            {
+                string name = e.Attributes["name"].Value;
+                Type type = Type.GetType(e.Attributes["type"].Value);
+                object value = Convert.ChangeType(e.Attributes["value"].Value, type);
+                metaData.Add(new MetaDataEntry(name, value));
+            }
+            return metaData;
+        }
+        protected virtual void SaveRequiredAssetIDs(out List<int> requiredAtomicAssets, out List<int> requiredComposedAssets)
+        {
+            requiredAtomicAssets = new List<int>();
+            requiredComposedAssets = new List<int>();
+        }
+        protected List<int> LoadRequiredAssetIDs()
+        {
+            List<int> requiredAssets = new List<int>();
+            XmlDocument xml = new XmlDocument();
+            xml.Load(MetaDataPath);
+            XmlNodeList requiredAssetIDsNodes = xml.SelectNodes("//Metadata/RequiredAssets/ID");
+            foreach (XmlNode i in requiredAssetIDsNodes)
+                requiredAssets.Add(Convert.ToInt32(i.InnerText));
+            return requiredAssets;
+        }
+
+        protected virtual void Save() { }
+
+        public void Apply()
+        {
+            WriteMetaData();
+            Save();
+        }
     }
 }

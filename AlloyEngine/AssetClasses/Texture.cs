@@ -48,31 +48,39 @@ namespace Alloy.Assets
             GL.BindTexture(TextureTarget.Texture2D, Handle);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, pixels.Width, pixels.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, bytePixels.ToArray());
 
+            var metaData = LoadMetaData();
+
+            filter = filterMode;
+            if (metaData.Count >= 1)
+                filter = (Filter)metaData[0].value;
             int minFilter;
             if (generateMipMaps)
             {
                 GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                if (filterMode == Filter.Linear)
+                if (filter == Filter.Linear)
                     minFilter = (int)TextureMinFilter.LinearMipmapLinear;
                 else
                     minFilter = (int)TextureMinFilter.NearestMipmapLinear;
             }
             else
             {
-                if (filterMode == Filter.Linear)
+                if (filter == Filter.Linear)
                     minFilter = (int)TextureMinFilter.Linear;
                 else
                     minFilter = (int)TextureMinFilter.Nearest;
             }
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, minFilter);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, 
-                            (int)(filterMode == Filter.Linear ? TextureMagFilter.Linear : TextureMagFilter.Nearest));
+                            (int)(filter == Filter.Linear ? TextureMagFilter.Linear : TextureMagFilter.Nearest));
+            wrapping = wrapMode;
+            if (metaData.Count >= 2)
+                wrapping = (Wrapping)metaData[1].value;
             int wrap;
-            if (wrapMode == Wrapping.Repeat)
+            if (wrapping == Wrapping.Repeat)
                 wrap = (int)TextureWrapMode.Repeat;
-            else if (wrapMode == Wrapping.Clamp) 
+            else if (wrapping == Wrapping.Clamp) 
                 wrap = (int)TextureWrapMode.Clamp;
-            else if (wrapMode == Wrapping.Mirror)
+            else if (wrapping == Wrapping.Mirror)
                 wrap = (int)TextureWrapMode.MirroredRepeat;
             else
                 wrap = (int)TextureWrapMode.Repeat;
@@ -89,8 +97,8 @@ namespace Alloy.Assets
         protected override void SaveMetaData(out List<MetaDataEntry> metaData)
         {
             metaData = new List<MetaDataEntry>();
-            metaData.Add(new MetaDataEntry("Filter", (int)filter));
-            metaData.Add(new MetaDataEntry("Wrapping", (int)wrapping));
+            metaData.Add(new MetaDataEntry("Filter", filter));
+            metaData.Add(new MetaDataEntry("Wrapping", wrapping));
         }
     }
 }

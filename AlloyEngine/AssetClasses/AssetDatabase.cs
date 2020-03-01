@@ -11,8 +11,8 @@ namespace Alloy.Assets
     {
         //Assets
         private static List<Asset> loadedAssets = new List<Asset>();
-        private static List<Tuple<string, string>> atomicAssetsInProject = new List<Tuple<string, string>>();
-        private static List<Tuple<string, string>> composedAssetsInProject = new List<Tuple<string, string>>();
+        private static List<Tuple<string, string, int>> atomicAssetsInProject = new List<Tuple<string, string, int>>();
+        private static List<Tuple<string, string, int>> composedAssetsInProject = new List<Tuple<string, string, int>>();
 
         //ID Management
         private static int currentID = 0;
@@ -38,9 +38,9 @@ namespace Alloy.Assets
                 {
                     string type = asset.Attributes["type"].Value;
                     if (IsTypeAtomic(type))
-                        atomicAssetsInProject.Add(new Tuple<string, string>(asset.Attributes["path"].Value, type));
+                        atomicAssetsInProject.Add(new Tuple<string, string, int>(asset.Attributes["path"].Value, type, Convert.ToInt32(asset.Attributes["id"].Value)));
                     else
-                        composedAssetsInProject.Add(new Tuple<string, string>(asset.Attributes["path"].Value, type));
+                        composedAssetsInProject.Add(new Tuple<string, string, int>(asset.Attributes["path"].Value, type, Convert.ToInt32(asset.Attributes["id"].Value)));
                 }
             }
             else
@@ -57,6 +57,7 @@ namespace Alloy.Assets
                 case ".glsl": return "Shader";
                 case ".shader": return "Shader";
                 case ".png": return "Texture2D";
+                case ".alloy": return "Scene";
                 default: return "Unsupported";
             }
         }
@@ -72,16 +73,69 @@ namespace Alloy.Assets
             string type = TypeFromExtension(extension);
             if (type != "Unsupported")
             {
+                int id = GetNewID();
                 if (IsTypeAtomic(type))
-                    atomicAssetsInProject.Add(new Tuple<string, string>(path, type));
+                    atomicAssetsInProject.Add(new Tuple<string, string, int>(path, type, id));
                 else
-                    composedAssetsInProject.Add(new Tuple<string, string>(path, type));
+                    composedAssetsInProject.Add(new Tuple<string, string, int>(path, type, id));
                 if(!Asset.HasMetaData(path))
-                    Asset.WriteDefaultMetaData(GetNewID(), path);
+                    Asset.WriteDefaultMetaData(id, path);
                 return true;
             }
             else
                 return false;
+        }
+
+        public static bool IsAssetLoaded(string path)
+        {
+            return loadedAssets.FindAll(x => x.Path == path).Count > 0;
+        }
+        public static bool IsAssetLoaded(int assetID)
+        {
+            return loadedAssets.FindAll(x => x.ID == assetID).Count > 0;
+        }
+
+        public static void Load(string path)
+        {
+            if (IsAssetLoaded(path))
+                return;
+            var a = atomicAssetsInProject.FindAll(x => x.Item1 == path);
+            if(a.Count <= 0)
+                a = composedAssetsInProject.FindAll(x => x.Item1 == path);
+            if (a.Count <= 0)
+            {
+                Logging.LogWarning("Asset Database", $"The Asset {path} cannot be loaded because it has not been imported yet!");
+                return;
+            }
+            if (a[0].Item2 == "Model")
+                loadedAssets.Add(new Model(path));
+            else if (a[0].Item2 == "Scene")
+                loadedAssets.Add(new Scene(path));
+            else if (a[0].Item2 == "Shader")
+                loadedAssets.Add(new Shader(path));
+            else if (a[0].Item2 == "Texture")
+                loadedAssets.Add(new Texture(path));
+        }
+        public static void Load(int assetID)
+        {
+            if (IsAssetLoaded(assetID))
+                return;
+            var a = atomicAssetsInProject.FindAll(x => x.Item3 == assetID);
+            if (a.Count <= 0)
+                a = composedAssetsInProject.FindAll(x => x.Item3 == assetID);
+            if (a.Count <= 0)
+            {
+                Logging.LogWarning("Asset Database", $"The Asset with ID {assetID} cannot be loaded because it has not been imported yet!");
+                return;
+            }
+            if (a[0].Item2 == "Model")
+                loadedAssets.Add(new Model(a[0].Item1));
+            else if (a[0].Item2 == "Scene")
+                loadedAssets.Add(new Scene(a[0].Item1));
+            else if (a[0].Item2 == "Shader")
+                loadedAssets.Add(new Shader(a[0].Item1));
+            else if (a[0].Item2 == "Texture")
+                loadedAssets.Add(new Texture(a[0].Item1));
         }
 
         public static int GetNewID()
@@ -128,6 +182,23 @@ namespace Alloy.Assets
                 XmlAttribute type = data.CreateAttribute("type");
                 type.Value = a.Item2;
                 asset.Attributes.Append(type);
+                XmlAttribute id = data.CreateAttribute("id");
+                id.Value = a.Item3.ToString();
+                asset.Attributes.Append(id);
+            }
+            foreach (var a in composedAssetsInProject)
+            {
+                XmlNode asset = data.CreateElement("Asset");
+                assets.AppendChild(asset);
+                XmlAttribute path = data.CreateAttribute("path");
+                path.Value = a.Item1;
+                asset.Attributes.Append(path);
+                XmlAttribute type = data.CreateAttribute("type");
+                type.Value = a.Item2;
+                asset.Attributes.Append(type);
+                XmlAttribute id = data.CreateAttribute("id");
+                id.Value = a.Item3.ToString();
+                asset.Attributes.Append(id);
             }
             data.Save("AssetDatabase.xml");
         }

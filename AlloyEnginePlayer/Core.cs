@@ -12,7 +12,7 @@ namespace Alloy
 {
     class Core : GameWindow
     {
-        Scene scene = new Scene("Assets/Scenes/Sample.alloy");
+        //Scene scene = new Scene("Assets/Scenes/Sample.alloy");
 
         public Core(uint width, uint height, GraphicsMode graphicsMode, string title) : base((int)width, (int)height, graphicsMode, title)
         {
@@ -31,7 +31,7 @@ namespace Alloy
             //scene.AddEntity(entity, "Child Entity");
             //scene.SaveScene(scene.Path);
 
-            scene.LoadScene(scene.Path);
+            //scene.LoadScene(scene.Path);
         }
 
         //Loop

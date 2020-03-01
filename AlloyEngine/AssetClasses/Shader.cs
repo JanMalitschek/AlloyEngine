@@ -18,6 +18,29 @@ namespace Alloy.Assets
             public struct Invalid { }
             public Type type;
             public string name;
+            public object value;
+            public int location;
+
+            public void Pass()
+            {
+                if (type == typeof(float))
+                    GL.Uniform1(location, (float)value);
+                else if (type == typeof(int))
+                    GL.Uniform1(location, (int)value);
+                if (type == typeof(Vector2))
+                    GL.Uniform2(location, (Vector2)value);
+                if (type == typeof(Vector3))
+                    GL.Uniform3(location, (Vector3)value);
+                if (type == typeof(Vector4))
+                    GL.Uniform4(location, (Vector4)value);
+                if (type == typeof(Matrix4))
+                {
+                    Matrix4 mat = (Matrix4)value;
+                    GL.UniformMatrix4(location, false, ref mat);
+                }
+                if (type == typeof(Texture))
+                    GL.Uniform1(location, ((Texture)value).Handle);
+            }
         }
         public List<Uniform> uniforms { get; private set; } = new List<Uniform>();
         public int uniformCount
@@ -144,11 +167,23 @@ namespace Alloy.Assets
             GL.DetachShader(Program, frag);
             GL.DeleteShader(frag);
             GL.DeleteShader(vert);
+
+            AssignUniformLocations();
         }
 
         public void Use()
         {
             GL.UseProgram(Program);
+        }
+
+        private void AssignUniformLocations()
+        {
+            for(int i = 0; i < uniformCount; i++)
+            {
+                Uniform u = uniforms[i];
+                u.location = GetUniformLocation(u.name);
+                uniforms[i] = u;
+            }
         }
 
         public Uniform GetUniform(int idx)
@@ -163,6 +198,11 @@ namespace Alloy.Assets
                 if (u.name == name)
                     return u;
             return new Uniform { name = "Invalid Name!", type = typeof(Uniform.Invalid) };
+        }
+
+        public List<Uniform> GetUniforms()
+        {
+            return new List<Uniform>(uniforms);
         }
 
         public int GetUniformLocation(string name)

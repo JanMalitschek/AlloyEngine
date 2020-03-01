@@ -19,7 +19,17 @@ namespace Alloy
 
         public static float aspectRatio = 1.0f;
 
+        private static List<Renderer> registeredRenderers = new List<Renderer>();
+
         public static void Render()
+        {
+            UpdateMatrices();
+            foreach (Renderer r in registeredRenderers)
+                if(r.enabled)
+                    r.Render();
+        }
+
+        private static void UpdateMatrices()
         {
             Transform viewTransform = new Transform();
             if (activeCamera != null)
@@ -37,6 +47,11 @@ namespace Alloy
                 aspectRatio,
                 activeCamera != null ? activeCamera.nearPlane : 0.01f,
                 activeCamera != null ? activeCamera.farPlane : 500.0f);
+        }
+
+        public static void Register(Renderer renderer)
+        {
+            registeredRenderers.Add(renderer);
         }
     }
 }
