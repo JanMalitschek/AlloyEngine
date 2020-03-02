@@ -25,13 +25,8 @@ namespace Alloy
             base.OnLoad(e);
             Logging.LogInfo(this, "Initializing");
             AssetDatabase.Init();
-
-            //var entity = scene.AddEntity("Camera");
-            //entity.Value.AddComponent<Alloy.Components.Camera>();
-            //scene.AddEntity(entity, "Child Entity");
-            //scene.SaveScene(scene.Path);
-
-            //scene.LoadScene(scene.Path);
+            AssetDatabase.Load(4);
+            Material m = AssetDatabase.GetAsset<Material>(4);
         }
 
         //Loop

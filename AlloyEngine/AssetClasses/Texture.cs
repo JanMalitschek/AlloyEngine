@@ -12,7 +12,7 @@ using SixLabors.ImageSharp.Processing;
 
 namespace Alloy.Assets
 {
-    class Texture : Asset
+    public class Texture : Asset
     {
         public int Handle { get; private set; }
         private Image<Rgba32> pixels;

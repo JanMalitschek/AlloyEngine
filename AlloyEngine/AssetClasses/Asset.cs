@@ -25,7 +25,7 @@ namespace Alloy.Assets
             }
         }
 
-        public int ID { get; private set; }
+        public int ID { get; internal set; }
 
         public Asset(string path)
         {

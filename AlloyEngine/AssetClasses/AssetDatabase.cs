@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Alloy.Utility;
 
 namespace Alloy.Assets
 {
@@ -23,24 +24,23 @@ namespace Alloy.Assets
             Logging.LogInfo("Asset Database", "Loading Asset Database!");
             if (System.IO.File.Exists("AssetDatabase.xml"))
             {
-                XmlDocument data = new XmlDocument();
-                data.Load("AssetDatabase.xml");
+                XMLAbstraction data = new XMLAbstraction("AssetDatabase", "AssetDatabase.xml");
 
                 //Load IDs
-                currentID = Convert.ToInt32(data.SelectSingleNode("//AssetDatabase/IDs/CurrentID").InnerText);
-                XmlNodeList deletedIDNodes = data.SelectNodes("//AssetDatabase/IDs/DeletedIDs/ID");
-                foreach (XmlNode n in deletedIDNodes)
+                currentID = Convert.ToInt32(data.GetNode("//AssetDatabase/IDs/CurrentID").InnerText);
+                var deletedIDNodes = data.GetNodes("//AssetDatabase/IDs/DeletedIDs/ID");
+                foreach (var n in deletedIDNodes)
                     deletedIDs.Add(Convert.ToInt32(n.InnerText));
 
                 //Load Assets
-                XmlNodeList assetNodes = data.SelectNodes("//AssetDatabase/Assets/*[local-name()='Asset']");
-                foreach (XmlNode asset in assetNodes)
+                var assetNodes = data.GetNodes("//AssetDatabase/Assets/*[local-name()='Asset']");
+                foreach (var asset in assetNodes)
                 {
-                    string type = asset.Attributes["type"].Value;
+                    string type = asset.GetAttribute("type");
                     if (IsTypeAtomic(type))
-                        atomicAssetsInProject.Add(new Tuple<string, string, int>(asset.Attributes["path"].Value, type, Convert.ToInt32(asset.Attributes["id"].Value)));
+                        atomicAssetsInProject.Add(new Tuple<string, string, int>(asset.GetAttribute("path"), type, Convert.ToInt32(asset.GetAttribute("id"))));
                     else
-                        composedAssetsInProject.Add(new Tuple<string, string, int>(asset.Attributes["path"].Value, type, Convert.ToInt32(asset.Attributes["id"].Value)));
+                        composedAssetsInProject.Add(new Tuple<string, string, int>(asset.GetAttribute("path"), type, Convert.ToInt32(asset.GetAttribute("id"))));
                 }
             }
             else
@@ -56,15 +56,16 @@ namespace Alloy.Assets
                 case ".dae": return "Model";
                 case ".glsl": return "Shader";
                 case ".shader": return "Shader";
-                case ".png": return "Texture2D";
+                case ".png": return "Texture";
                 case ".alloy": return "Scene";
+                case ".mat": return "Material";
                 default: return "Unsupported";
             }
         }
 
         private static bool IsTypeAtomic(string type)
         {
-            return type == "Model" || type == "Shader" || type == "Texture2D";
+            return type == "Model" || type == "Shader" || type == "Texture";
         }
 
         public static bool Import (string path)
@@ -115,6 +116,13 @@ namespace Alloy.Assets
                 loadedAssets.Add(new Shader(path));
             else if (a[0].Item2 == "Texture")
                 loadedAssets.Add(new Texture(path));
+            else if (a[0].Item2 == "Material")
+                loadedAssets.Add(new Material(a[0].Item1));
+        }
+        public static void Load(params string[] paths)
+        {
+            foreach (string p in paths)
+                Load(p);
         }
         public static void Load(int assetID)
         {
@@ -136,6 +144,56 @@ namespace Alloy.Assets
                 loadedAssets.Add(new Shader(a[0].Item1));
             else if (a[0].Item2 == "Texture")
                 loadedAssets.Add(new Texture(a[0].Item1));
+            else if (a[0].Item2 == "Material")
+                loadedAssets.Add(new Material(a[0].Item1));
+            else
+                return;
+            loadedAssets.Last().ID = assetID;
+        }
+        public static void Load(params int[] assetIDs)
+        {
+            foreach (int i in assetIDs)
+                Load(i);
+        }
+
+        public static Asset GetAsset(string path)
+        {
+            foreach (var a in loadedAssets)
+                if (a.Path == path)
+                    return a;
+            return null;
+        }
+        public static T GetAsset<T>(string path) where T : Asset
+        {
+            foreach (var a in loadedAssets)
+                if (a.Path == path && a is T)
+                    return a as T;
+            return null;
+        }
+        public static Asset GetAsset(int assetID)
+        {
+            foreach (var a in loadedAssets)
+                if (a.ID == assetID)
+                    return a;
+            return null;
+        }
+        public static T GetAsset<T>(int assetID) where T : Asset
+        {
+            foreach (var a in loadedAssets)
+                if (a.ID == assetID && a is T)
+                    return a as T;
+            return null;
+        }
+
+        public static int GetIDFromPath(string path)
+        {
+            foreach (var a in atomicAssetsInProject)
+                if (a.Item1 == path)
+                    return Convert.ToInt32(a.Item3);
+            foreach (var a in composedAssetsInProject)
+                if (a.Item1 == path)
+                    return Convert.ToInt32(a.Item3);
+            return -1;
         }
 
         public static int GetNewID()
@@ -150,57 +208,65 @@ namespace Alloy.Assets
                 return currentID++;
         }
 
+        #region Asset Creation
+        public static int CreateMaterial(string path)
+        {
+            System.IO.File.Create(path);
+            XMLAbstraction mat = new XMLAbstraction("Material");
+            mat.Save(path);
+            if (!Import(path))
+                return -1;
+            Logging.LogInfo("Asset Database", "Created and imported new material!");
+            WriteDatabase();
+            return GetIDFromPath(path);
+        }
+        #endregion
+
         public static void WriteDatabase()
         {
-            XmlDocument data = new XmlDocument();
-            XmlNode root = data.CreateElement("AssetDatabase");
-            data.AppendChild(root);
+            XMLAbstraction data = new XMLAbstraction("AssetDatabase");
             //IDs
-            XmlNode ids = data.CreateElement("IDs");
-            root.AppendChild(ids);
-            XmlNode cID = data.CreateElement("CurrentID");
-            cID.InnerText = currentID.ToString();
-            ids.AppendChild(cID);
-            XmlNode dIDs = data.CreateElement("DeletedIDs");
-            ids.AppendChild(dIDs);
+            var idsNode = data.AddNode("IDs");
+            idsNode.AddNode("CurrentID", currentID.ToString());
+            var deletedIDsNode = idsNode.AddNode("DeletedIDs");
             foreach(int i in deletedIDs)
-            {
-                XmlNode dID = data.CreateElement("ID");
-                dID.InnerText = i.ToString();
-                dID.AppendChild(dID);
-            }
+                deletedIDsNode.AddNode("ID", i.ToString());
             //Assets
-            XmlNode assets = data.CreateElement("Assets");
-            root.AppendChild(assets);
+            var assetsNode = data.AddNode("Assets");
             foreach(var a in atomicAssetsInProject)
             {
-                XmlNode asset = data.CreateElement("Asset");
-                assets.AppendChild(asset);
-                XmlAttribute path = data.CreateAttribute("path");
-                path.Value = a.Item1;
-                asset.Attributes.Append(path);
-                XmlAttribute type = data.CreateAttribute("type");
-                type.Value = a.Item2;
-                asset.Attributes.Append(type);
-                XmlAttribute id = data.CreateAttribute("id");
-                id.Value = a.Item3.ToString();
-                asset.Attributes.Append(id);
+                var assetNode = assetsNode.AddNode("Asset");
+                assetNode.AddAttribute("path", a.Item1);
+                assetNode.AddAttribute("type", a.Item2);
+                assetNode.AddAttribute("id", a.Item3);
             }
             foreach (var a in composedAssetsInProject)
             {
-                XmlNode asset = data.CreateElement("Asset");
-                assets.AppendChild(asset);
-                XmlAttribute path = data.CreateAttribute("path");
-                path.Value = a.Item1;
-                asset.Attributes.Append(path);
-                XmlAttribute type = data.CreateAttribute("type");
-                type.Value = a.Item2;
-                asset.Attributes.Append(type);
-                XmlAttribute id = data.CreateAttribute("id");
-                id.Value = a.Item3.ToString();
-                asset.Attributes.Append(id);
+                var assetNode = assetsNode.AddNode("Asset");
+                assetNode.AddAttribute("path", a.Item1);
+                assetNode.AddAttribute("type", a.Item2);
+                assetNode.AddAttribute("id", a.Item3);
             }
             data.Save("AssetDatabase.xml");
+        }
+
+        public static void LogAtomicAssets()
+        {
+            Logging.LogInfo("Asset Database", "Atomic Assets in project:");
+            foreach (var a in atomicAssetsInProject)
+                Logging.LogSimple($"\tPath: {a.Item1} Type: {a.Item2} ID: {a.Item3}");
+        }
+        public static void LogComposedAssets()
+        {
+            Logging.LogInfo("Asset Database", "Composed Assets in project:");
+            foreach (var a in composedAssetsInProject)
+                Logging.LogSimple($"\tPath: {a.Item1} Type: {a.Item2} ID: {a.Item3}");
+        }
+        public static void LogLoadedAssets()
+        {
+            Logging.LogInfo("Asset Database", "Loaded Assets:");
+            foreach (var a in loadedAssets)
+                Logging.LogSimple($"\tPath: {a.Path} Type: {a.GetType().Name} ID: {a.ID}");
         }
     }
 }

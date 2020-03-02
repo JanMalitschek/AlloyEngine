@@ -9,9 +9,16 @@ namespace Alloy.Utility
     {
         public class Node
         {
-            private XmlDocument xml;
-            private XmlNode node;
+            public XmlDocument xml { get; private set; }
+            public XmlNode node { get; private set; }
             public string Name { get; private set; }
+            public string InnerText
+            {
+                get
+                {
+                    return node.InnerText;
+                }
+            }
             public Node(XmlDocument xml, XmlNode parent, string name, string innerText = "")
             {
                 this.xml = xml;
@@ -57,7 +64,7 @@ namespace Alloy.Utility
             }
         }
 
-        private XmlDocument xml;
+        public XmlDocument xml { get; private set; }
         private XmlNode root;
 
         public XMLAbstraction(string name)
@@ -78,8 +85,6 @@ namespace Alloy.Utility
                 Logging.LogError(this, e.Message);
                 return;
             }
-            root = xml.CreateElement(name);
-            xml.AppendChild(root);
         }
 
         public Node AddNode(string name, string innerText = "")

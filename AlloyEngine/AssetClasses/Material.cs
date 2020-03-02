@@ -8,7 +8,7 @@ using Alloy.Utility;
 
 namespace Alloy.Assets
 {
-    class Material : Asset
+    public class Material : Asset
     {
         private Shader shader;
         public List<Shader.Uniform> Uniforms { get; private set; }
@@ -17,6 +17,18 @@ namespace Alloy.Assets
         {
             shader = null;
             Uniforms = new List<Shader.Uniform>();
+            XMLAbstraction xml = new XMLAbstraction("Material", path);
+            var shaderNode = xml.GetNode("//Material/Shader");
+            if (shaderNode != null)
+                SetShader(AssetDatabase.GetAsset(Convert.ToInt32(shaderNode.InnerText)) as Shader);
+            foreach(var n in xml.GetNodes("//Material/Uniforms/Uniform"))
+            {
+                Type t = Type.GetType(n.GetAttribute("type"));
+                if (t.IsSubclassOf(typeof(Asset)))
+                    SetUniform(n.GetAttribute("name"), AssetDatabase.GetAsset(TypeSerialization.DeserializePrimitiveType<int>(n.node)));
+                else
+                    SetUniform(n.GetAttribute("name"), TypeSerialization.DeserializeType(n.node, t));
+            }
         }
 
         public void SetShader(Shader s)
@@ -39,6 +51,8 @@ namespace Alloy.Assets
 
         public void Pass()
         {
+            if (shader == null)
+                return;
             shader.Use();
             foreach (Shader.Uniform u in Uniforms)
                 u.Pass();
@@ -52,8 +66,10 @@ namespace Alloy.Assets
         {
             requiredAtomicAssets = new List<int>();
             requiredComposedAssets = new List<int>();
+            if (shader != null)
+                requiredAtomicAssets.Add(shader.ID);
             foreach (Shader.Uniform u in Uniforms)
-                if (u.type == typeof(Texture))
+                if (u.type == typeof(Texture) && u.value != null)
                     requiredAtomicAssets.Add(((Texture)u.value).ID);
         }
 
@@ -64,10 +80,16 @@ namespace Alloy.Assets
             var uniformsNode = xml.AddNode("Uniforms");
             foreach (Shader.Uniform u in Uniforms)
             {
-                var uniformNode = uniformsNode.AddNode("Uniform");
-                uniformsNode.AddAttribute("name", u.name);
-                uniformsNode.AddAttribute("type", u.type.FullName);
-                uniformsNode.AddAttribute("value", u.type.IsSubclassOf(typeof(Asset)) ? (u.value as Asset).ID.ToString() : u.value.ToString());
+                if (u.value != null)
+                {
+                    var uniformNode = uniformsNode.AddNode("Uniform");
+                    uniformNode.AddAttribute("name", u.name);
+                    uniformNode.AddAttribute("type", u.type.FullName);
+                    if (u.type.IsSubclassOf(typeof(Asset)))
+                        TypeSerialization.SerializePrimitiveType((u.value as Asset).ID, uniformNode.node, xml.xml);
+                    else
+                        TypeSerialization.SerializeType(u.value, uniformNode.node, xml.xml);
+                }
             }
             xml.Save(Path);
         }
