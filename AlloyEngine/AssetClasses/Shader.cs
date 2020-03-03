@@ -43,6 +43,7 @@ namespace Alloy.Assets
             }
         }
         public List<Uniform> uniforms { get; private set; } = new List<Uniform>();
+        public List<RenderPipeline.PredefinedUniforms> predefinedUniforms = new List<RenderPipeline.PredefinedUniforms>();
         public int uniformCount
         {
             get
@@ -108,7 +109,15 @@ namespace Alloy.Assets
                                     type = typeof(Matrix4);
                                 else if (splitLine.Contains("sampler2D"))
                                     type = typeof(Texture);
-                                uniforms.Add(new Uniform { name = name, type = type });
+
+                                if (name == "a_mod")
+                                    predefinedUniforms.Add(RenderPipeline.PredefinedUniforms.a_mod);
+                                else if (name == "a_view")
+                                    predefinedUniforms.Add(RenderPipeline.PredefinedUniforms.a_view);
+                                else if (name == "a_proj")
+                                    predefinedUniforms.Add(RenderPipeline.PredefinedUniforms.a_proj);
+                                else
+                                    uniforms.Add(new Uniform { name = name, type = type });
                             }
                         }
                         switch (target)

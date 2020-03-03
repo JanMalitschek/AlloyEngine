@@ -9,7 +9,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Alloy.BufferObjects
 {
-    class VBO : BufferObject
+    public class VBO : BufferObject
     {
         public VBO(Mesh mesh, BufferUsageHint mode)
         {

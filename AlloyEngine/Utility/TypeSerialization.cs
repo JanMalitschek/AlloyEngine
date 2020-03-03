@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Xml;
 using OpenTK;
 using OpenTK.Graphics;
+using Alloy.Assets;
 
 namespace Alloy.Utility
 {
@@ -175,6 +176,56 @@ namespace Alloy.Utility
             field.SetValue(target, DeserializeColor(node));
         }
 
+        public static void SerializeAsset(Asset asset, XmlNode parentNode, XmlDocument xml)
+        {
+            XmlAttribute idAtt = xml.CreateAttribute("id");
+            idAtt.Value = asset.ID.ToString();
+            parentNode.Attributes.Append(idAtt);
+        }
+        public static void SerializeAssetArray(Asset[] assets, XmlNode parentNode, XmlDocument xml)
+        {
+            foreach(Asset a in assets)
+            {
+                XmlNode assetNode = xml.CreateElement("Asset");
+                assetNode.InnerText = a.ID.ToString();
+                parentNode.AppendChild(assetNode);
+            }
+        }
+        public static void SerializeAssetField(FieldInfo field, object valueSource, XmlNode parentNode, XmlDocument xml)
+        {
+            Asset asset = field.GetValue(valueSource) as Asset;
+            SerializeAsset(asset, parentNode, xml);
+        }
+        public static void SerializeAssetArrayField(FieldInfo field, object valueSource, XmlNode parentNode, XmlDocument xml)
+        {
+            SerializeAssetArray(field.GetValue(valueSource) as Asset[], parentNode, xml);
+        }
+        public static Asset DeserializeAsset(XmlNode node)
+        {
+            int id = Convert.ToInt32(node.Attributes["id"].Value);
+            AssetDatabase.Load(id);
+            return AssetDatabase.GetAsset(id);
+        }
+        public static void DeserializeAssetField(XmlNode node, FieldInfo field, object target)
+        {
+            field.SetValue(target, DeserializeAsset(node));
+        }
+        public static T[] DeserializeAssetArray<T>(XmlNode node) where T : Asset
+        {
+            List<T> assets = new List<T>();
+            foreach(XmlNode c in node.ChildNodes)
+            {
+                int id = Convert.ToInt32(c.InnerText);
+                AssetDatabase.Load(id);
+                assets.Add(AssetDatabase.GetAsset<T>(id));
+            }
+            return assets.ToArray();
+        }
+        public static void DeserializeAssetArrayField<T>(XmlNode node, FieldInfo field, object target) where T : Asset
+        {
+            field.SetValue(target, DeserializeAssetArray<T>(node));
+        }
+
         //General Field
         public static void SerializeType(object value, XmlNode parentNode, XmlDocument xml)
         {
@@ -193,6 +244,20 @@ namespace Alloy.Utility
                     SerializeQuaternion((value as Quaternion?).Value, parentNode, xml);
                 else if (t == typeof(Color4))
                     SerializeColor((value as Color4?).Value, parentNode, xml);
+                else if (t.IsSubclassOf(typeof(Asset)))
+                    SerializeAsset(value as Asset, parentNode, xml);
+                else if (t == typeof(Asset[]))
+                    SerializeAssetArray(value as Asset[], parentNode, xml);
+                else if (t == typeof(Model[]))
+                    SerializeAssetArray(value as Model[], parentNode, xml);
+                else if (t == typeof(Shader[]))
+                    SerializeAssetArray(value as Shader[], parentNode, xml);
+                else if (t == typeof(Scene[]))
+                    SerializeAssetArray(value as Scene[], parentNode, xml);
+                else if (t == typeof(Texture[]))
+                    SerializeAssetArray(value as Texture[], parentNode, xml);
+                else if (t == typeof(Material[]))
+                    SerializeAssetArray(value as Material[], parentNode, xml);
             }
         }
         public static void SerializeField(FieldInfo field, object valueSource, XmlNode parentNode, XmlDocument xml)
@@ -215,6 +280,20 @@ namespace Alloy.Utility
                     return DeserializeQuaternion(node);
                 else if (type == typeof(Color4))
                     return DeserializeColor(node);
+                else if (type.IsSubclassOf(typeof(Asset)))
+                    return DeserializeAsset(node);
+                else if (type == typeof(Asset[]))
+                    return DeserializeAssetArray<Asset>(node);
+                else if (type == typeof(Model[]))
+                    return DeserializeAssetArray<Model>(node);
+                else if (type == typeof(Shader[]))
+                    return DeserializeAssetArray<Shader>(node);
+                else if (type == typeof(Scene[]))
+                    return DeserializeAssetArray<Scene>(node);
+                else if (type == typeof(Texture[]))
+                    return DeserializeAssetArray<Texture>(node);
+                else if (type == typeof(Material[]))
+                    return DeserializeAssetArray<Material>(node);
                 else
                     return null;
             }

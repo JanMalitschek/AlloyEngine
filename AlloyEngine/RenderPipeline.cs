@@ -21,11 +21,18 @@ namespace Alloy
 
         private static List<Renderer> registeredRenderers = new List<Renderer>();
 
+        public enum PredefinedUniforms
+        {
+            a_mod,
+            a_view,
+            a_proj
+        }
+
         public static void Render()
         {
             UpdateMatrices();
             foreach (Renderer r in registeredRenderers)
-                if(r.enabled)
+                if (r.enabled)
                     r.Render();
         }
 
@@ -34,14 +41,7 @@ namespace Alloy
             Transform viewTransform = new Transform();
             if (activeCamera != null)
                 viewTransform = activeCamera.transform;
-            var T = Matrix4.CreateTranslation(viewTransform.position);
-            var eulerAngles = viewTransform.rotation.ToAxisAngle();
-            var Rx = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(eulerAngles.X));
-            var Ry = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(eulerAngles.Y));
-            var Rz = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(eulerAngles.Z));
-            var R = Rz * Ry * Rx;
-            var S = Matrix4.CreateScale(viewTransform.scale);
-            ViewMat = T * R * S;
+            ViewMat = viewTransform.GetTransformationMatrix();
             ProjMat = Matrix4.CreatePerspectiveFieldOfView(
                 MathHelper.DegreesToRadians(activeCamera != null ? activeCamera.fov : 60.0f),
                 aspectRatio,
@@ -52,6 +52,26 @@ namespace Alloy
         public static void Register(Renderer renderer)
         {
             registeredRenderers.Add(renderer);
+        }
+
+        internal static void PassPredefinedUniforms(List<PredefinedUniforms> predefinedUniforms, Renderer renderer, Assets.Shader s)
+        {
+            foreach(var u in predefinedUniforms)
+            {
+                switch (u)
+                {
+                    case PredefinedUniforms.a_mod:
+                        var mat = renderer.transform.GetTransformationMatrix();
+                        GL.UniformMatrix4(s.GetUniformLocation("a_mod"), false, ref mat);
+                        break;
+                    case PredefinedUniforms.a_view:
+                        GL.UniformMatrix4(s.GetUniformLocation("a_view"), false, ref ViewMat);
+                        break;
+                    case PredefinedUniforms.a_proj:
+                        GL.UniformMatrix4(s.GetUniformLocation("a_proj"), false, ref ProjMat);
+                        break;
+                }
+            }
         }
     }
 }

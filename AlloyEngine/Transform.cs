@@ -77,5 +77,17 @@ namespace Alloy
         {
             this.scale *= new Vector3(xScale, yScale, zScale);
         }
+
+        public Matrix4 GetTransformationMatrix()
+        {
+            var T = Matrix4.CreateTranslation(position);
+            var eulerAngles = rotation.ToAxisAngle();
+            var Rx = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(eulerAngles.X));
+            var Ry = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(eulerAngles.Y));
+            var Rz = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(eulerAngles.Z));
+            var R = Rz * Ry * Rx;
+            var S = Matrix4.CreateScale(scale);
+            return T * R * S;
+        }
     }
 }

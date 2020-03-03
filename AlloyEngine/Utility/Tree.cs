@@ -79,7 +79,7 @@ namespace Alloy.Utility
                 yield return GetBranches(b);
         }
 
-        private IEnumerable<Branch<T>> GetBranches(Branch<T> b)
+        public IEnumerable<Branch<T>> GetBranches(Branch<T> b)
         {
             yield return b;
             if (b.BranchCount > 0)

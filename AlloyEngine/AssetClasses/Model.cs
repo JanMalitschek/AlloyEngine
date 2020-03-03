@@ -10,7 +10,7 @@ using System.Globalization;
 
 namespace Alloy.Assets
 {
-    class Model : Asset
+    public class Model : Asset
     {
         public List<Mesh> meshes;
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Alloy.BufferObjects
 {
-    abstract class BufferObject
+    public abstract class BufferObject
     {
         public int buffer { get; protected set; }
         public abstract void Bind();

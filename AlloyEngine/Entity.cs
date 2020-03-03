@@ -61,7 +61,8 @@ namespace Alloy
         public T AddComponent<T>() where T : Component
         {
             components.Add(Activator.CreateInstance<T>());
-            components.Last().transform = this.transform;
+            components.Last().transform = transform;
+            components.Last().OnInit();
             return components.Last() as T;
         }
         public object AddComponent(Type t)
@@ -69,6 +70,8 @@ namespace Alloy
             if (t.IsSubclassOf(typeof(Component)))
             {
                 components.Add(Activator.CreateInstance(t) as Component);
+                components.Last().transform = transform;
+                components.Last().OnInit();
                 return components.Last();
             }
             else

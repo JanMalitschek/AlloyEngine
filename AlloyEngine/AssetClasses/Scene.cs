@@ -20,123 +20,83 @@ namespace Alloy.Assets
         public Scene(string path) : base(path)
         {
             hierarchy = new Tree<Entity>();
+            LoadScene(path);
         }
 
         #region Saving
+        protected override void Save()
+        {
+            SaveScene(Path);
+        }
         public void SaveScene(string path)
         {
-            XmlDocument xml = new XmlDocument();
-            XmlNode root = xml.CreateElement("Scene");
-            xml.AppendChild(root);
+            XMLAbstraction xml = new XMLAbstraction("Scene");
 
             //IDs
-            XmlNode iDsNode = xml.CreateElement("IDs");
-            root.AppendChild(iDsNode);
-            XmlNode currentIDNode = xml.CreateElement("CurrentID");
-            currentIDNode.InnerText = currentID.ToString();
-            iDsNode.AppendChild(currentIDNode);
-            XmlNode deletedIDsNode = xml.CreateElement("DeletedIDs");
-            iDsNode.AppendChild(deletedIDsNode);
-            foreach(int i in deletedIDs)
-            {
-                XmlNode deletedIDNode = xml.CreateElement("ID");
-                deletedIDNode.InnerText = i.ToString();
-                deletedIDsNode.AppendChild(deletedIDNode);
-            }
+            var iDsNode = xml.AddNode("IDs");
+            iDsNode.AddNode("CurrentID", currentID.ToString());
+            var deletedIDsNode = iDsNode.AddNode("DeletedIDs");
+            foreach (int i in deletedIDs)
+                deletedIDsNode.AddNode("ID", i.ToString());
 
             //Hierarchy
-            XmlNode hierarchyNode = xml.CreateElement("Hierarchy");
-            root.AppendChild(hierarchyNode);
+            var hierarchyNode = xml.AddNode("Hierarchy");
             foreach (var e in hierarchy.root)
-                SaveEntity(e, hierarchyNode, xml);
+                SaveEntity(e, hierarchyNode);
             xml.Save(Path);
         }
 
-        private void SaveEntity(Tree<Entity>.Branch<Entity> branch, XmlNode parent, XmlDocument xml)
+        private void SaveEntity(Tree<Entity>.Branch<Entity> branch, XMLAbstraction.Node parent)
         {
             //Entity Header
-            XmlNode entityNode = xml.CreateElement("Entity");
-            parent.AppendChild(entityNode);
-            XmlAttribute activeAtt = xml.CreateAttribute("active");
-            activeAtt.Value = branch.Value.active.ToString();
-            entityNode.Attributes.Append(activeAtt);
-            XmlAttribute nameAtt = xml.CreateAttribute("name");
-            nameAtt.Value = branch.Value.name.ToString();
-            entityNode.Attributes.Append(nameAtt);
-            XmlAttribute layerAtt = xml.CreateAttribute("layer");
-            layerAtt.Value = branch.Value.Layer.ToString();
-            entityNode.Attributes.Append(layerAtt);
-            XmlAttribute idAtt = xml.CreateAttribute("id");
-            idAtt.Value = branch.Value.ID.ToString();
-            entityNode.Attributes.Append(idAtt);
+            var entityNode = parent.AddNode("Entity");
+            entityNode.AddAttribute("active", branch.Value.active.ToString());
+            entityNode.AddAttribute("name", branch.Value.name.ToString());
+            entityNode.AddAttribute("layer", branch.Value.Layer.ToString());
+            entityNode.AddAttribute("id", branch.Value.ID.ToString());
 
             //Tags
-            XmlNode tagsNode = xml.CreateElement("Tags");
-            entityNode.AppendChild(tagsNode);
-            foreach(string t in branch.Value.tags)
-            {
-                XmlNode tagNode = xml.CreateElement("Tag");
-                tagNode.InnerText = t;
-                tagsNode.AppendChild(tagNode);
-            }
+            var tagsNode = entityNode.AddNode("Tags");
+            foreach (string t in branch.Value.tags)
+                tagsNode.AddNode("Tag", t);
 
             //Transform
-            XmlNode transformNode = xml.CreateElement("Transform");
-            entityNode.AppendChild(transformNode);
+            var transformNode = entityNode.AddNode("Transform");
             //Position
-            XmlNode tPositionNode = xml.CreateElement("Position");
-            transformNode.AppendChild(tPositionNode);
-            TypeSerialization.SerializeVector3(branch.Value.transform.position, tPositionNode, xml);
+            TypeSerialization.SerializeVector3(branch.Value.transform.position, transformNode.AddNode("Position").node, transformNode.xml);
             //Rotation
-            XmlNode tRotationNode = xml.CreateElement("Rotation");
-            transformNode.AppendChild(tRotationNode);
-            TypeSerialization.SerializeQuaternion(branch.Value.transform.rotation, tRotationNode, xml);
+            TypeSerialization.SerializeQuaternion(branch.Value.transform.rotation, transformNode.AddNode("Rotation").node, transformNode.xml);
             //Scale
-            XmlNode tScaleNode = xml.CreateElement("Scale");
-            transformNode.AppendChild(tScaleNode);
-            TypeSerialization.SerializeVector3(branch.Value.transform.scale, tScaleNode, xml);
+            TypeSerialization.SerializeVector3(branch.Value.transform.scale, transformNode.AddNode("Scale").node, transformNode.xml);
 
             //Components
-            XmlNode componentsNode = xml.CreateElement("Components");
-            entityNode.AppendChild(componentsNode);
+            var componentsNode = entityNode.AddNode("Components");
             foreach (Component c in branch.Value.components)
-                SaveComponent(c, componentsNode, xml);
+                SaveComponent(c, componentsNode);
 
             //Child Entities
-            XmlNode childrenNode = xml.CreateElement("Children");
-            entityNode.AppendChild(childrenNode);
+            var childrenNode = entityNode.AddNode("Children");
             if (branch.BranchCount > 0)
                 foreach (var b in branch.Branches)
-                    SaveEntity(b, childrenNode, xml);
+                    SaveEntity(b, childrenNode);
         }
 
-        private void SaveComponent(Component c, XmlNode parentNode, XmlDocument xml)
+        private void SaveComponent(Component c, XMLAbstraction.Node parentNode)
         {
-            XmlNode componentNode = xml.CreateElement("Component");
-            parentNode.AppendChild(componentNode);
-            XmlAttribute enabledAtt = xml.CreateAttribute("enabled");
-            enabledAtt.Value = c.enabled.ToString();
-            componentNode.Attributes.Append(enabledAtt);
-            XmlAttribute nameAtt = xml.CreateAttribute("name");
-            nameAtt.Value = c.GetType().FullName;
-            componentNode.Attributes.Append(nameAtt);
+            var componentNode = parentNode.AddNode("Component");
+            componentNode.AddAttribute("enabled", c.enabled.ToString());
+            componentNode.AddAttribute("name", c.GetType().FullName);
 
             //Fields
-            XmlNode fieldsNode = xml.CreateElement("Fields");
-            componentNode.AppendChild(fieldsNode);
+            var fieldsNode = componentNode.AddNode("Fields");
             foreach(var f in c.GetType().GetFields())
             {
                 if (f.Name != "transform" && f.Name != "enabled")
                 {
-                    XmlNode fieldNode = xml.CreateElement("Field");
-                    fieldsNode.AppendChild(fieldNode);
-                    XmlAttribute fieldNameAtt = xml.CreateAttribute("name");
-                    fieldNameAtt.Value = f.Name;
-                    fieldNode.Attributes.Append(fieldNameAtt);
-                    XmlAttribute fieldTypeAtt = xml.CreateAttribute("type");
-                    fieldTypeAtt.Value = f.FieldType.ToString();
-                    fieldNode.Attributes.Append(fieldTypeAtt);
-                    TypeSerialization.SerializeField(f, c, fieldNode, xml);
+                    var fieldNode = fieldsNode.AddNode("Field");
+                    fieldNode.AddAttribute("name", f.Name);
+                    fieldNode.AddAttribute("type", f.FieldType.FullName);
+                    TypeSerialization.SerializeField(f, c, fieldNode.node, fieldNode.xml);
                 }
             }
         }
@@ -246,6 +206,20 @@ namespace Alloy.Assets
         protected override void SaveMetaData(out List<MetaDataEntry> metaData)
         {
             metaData = new List<MetaDataEntry>();
+        }
+        protected override void SaveRequiredAssetIDs(out List<int> requiredAtomicAssets, out List<int> requiredComposedAssets)
+        {
+            requiredAtomicAssets = new List<int>();
+            requiredComposedAssets = new List<int>();
+        }
+
+        public void Update()
+        {
+            
+            foreach(var e in hierarchy.root)
+            {
+                e.Value.Update();
+            }
         }
     }
 }

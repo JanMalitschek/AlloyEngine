@@ -8,7 +8,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Alloy.BufferObjects
 {
-    class EBO : BufferObject
+    public class EBO : BufferObject
     {
         public EBO(SubMesh subMesh, BufferUsageHint mode)
         {

@@ -10,7 +10,15 @@ namespace Alloy.Assets
 {
     public class Material : Asset
     {
-        private Shader shader;
+        public Shader shader { get; private set; }
+        public List<RenderPipeline.PredefinedUniforms> PredefinedUniforms
+        {
+            get
+            {
+                if (shader != null) return shader.predefinedUniforms;
+                else return new List<RenderPipeline.PredefinedUniforms>();
+            }
+        }
         public List<Shader.Uniform> Uniforms { get; private set; }
 
         public Material(string path) : base(path)

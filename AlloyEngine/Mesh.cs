@@ -18,9 +18,16 @@ namespace Alloy
         public Vector4 color;
     }
 
-    class SubMesh
+    public class SubMesh
     {
         public List<uint> indices;
+        public int NumIndices
+        {
+            get
+            {
+                return indices.Count;
+            }
+        }
         public VAO vao { get; private set; }
         public EBO ebo { get; private set; }
 
@@ -39,7 +46,7 @@ namespace Alloy
         }
     }
 
-    class Mesh
+    public class Mesh
     {
         public string name;
         public List<Vertex> vertices;

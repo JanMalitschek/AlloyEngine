@@ -8,7 +8,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Alloy.BufferObjects
 {
-    class VAO : BufferObject
+    public class VAO : BufferObject
     {
         public VAO()
         {

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Alloy.Components
 {
-    public class Renderer : Component
+    public abstract class Renderer : Component
     {
         public override void OnInit()
         {
