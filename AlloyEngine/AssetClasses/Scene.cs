@@ -9,6 +9,7 @@ using Alloy.Components;
 using Alloy.Utility;
 using System.Xml;
 using System.Reflection;
+using Alloy.User;
 
 namespace Alloy.Assets
 {
@@ -161,12 +162,14 @@ namespace Alloy.Assets
             XmlNodeList childNodes = entityNode.SelectNodes("Children/*[local-name()='Entity']");
             foreach (XmlNode ce in childNodes)
                 LoadEntity(ce, currentBranch);
+
+            entity.Init();
         }
 
         private void LoadComponent(XmlNode componentNode, Entity e)
         {
             bool enabled = Convert.ToBoolean(componentNode.Attributes["enabled"].Value);
-            Type type = Type.GetType(componentNode.Attributes["name"].Value);
+            Type type = UserCodeDatabase.GetType(componentNode.Attributes["name"].Value);
             Component c = e.AddComponent(type) as Component;
             c.enabled = enabled;
 

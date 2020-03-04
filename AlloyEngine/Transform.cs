@@ -78,13 +78,13 @@ namespace Alloy
             this.scale *= new Vector3(xScale, yScale, zScale);
         }
 
-        public Matrix4 GetTransformationMatrix()
+        public Matrix4 GetTransformationMatrix(bool invert = false)
         {
-            var T = Matrix4.CreateTranslation(position);
+            var T = Matrix4.CreateTranslation(position * (invert ? -1.0f : 1.0f));
             var eulerAngles = rotation.ToAxisAngle();
-            var Rx = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(eulerAngles.X));
-            var Ry = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(eulerAngles.Y));
-            var Rz = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(eulerAngles.Z));
+            var Rx = Matrix4.CreateRotationX(eulerAngles.X * eulerAngles.W);
+            var Ry = Matrix4.CreateRotationY(eulerAngles.Y * eulerAngles.W + MathHelper.DegreesToRadians(invert ? 180.0f : 0.0f));
+            var Rz = Matrix4.CreateRotationZ(eulerAngles.Z * eulerAngles.W);
             var R = Rz * Ry * Rx;
             var S = Matrix4.CreateScale(scale);
             return T * R * S;

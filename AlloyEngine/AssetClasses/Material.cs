@@ -62,8 +62,9 @@ namespace Alloy.Assets
             if (shader == null)
                 return;
             shader.Use();
+            int textureIdx = 0;
             foreach (Shader.Uniform u in Uniforms)
-                u.Pass();
+                u.Pass(ref textureIdx);
         }
 
         protected override void SaveMetaData(out List<MetaDataEntry> metaData)

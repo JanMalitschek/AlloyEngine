@@ -50,9 +50,15 @@ namespace Alloy.Assets
 
             var metaData = LoadMetaData();
 
+            SetFilter(metaData.Count >= 1 ? (Filter)Convert.ToInt32(metaData[0].value) : filterMode, generateMipMaps);
+
+            SetWrapping(metaData.Count >= 2 ? (Wrapping)Convert.ToInt32(metaData[1].value) : wrapMode);
+        }
+
+        public void SetFilter(Filter filterMode, bool generateMipMaps = true)
+        {
+            GL.BindTexture(TextureTarget.Texture2D, Handle);
             filter = filterMode;
-            if (metaData.Count >= 1)
-                filter = (Filter)metaData[0].value;
             int minFilter;
             if (generateMipMaps)
             {
@@ -70,15 +76,19 @@ namespace Alloy.Assets
                     minFilter = (int)TextureMinFilter.Nearest;
             }
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, minFilter);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, 
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
                             (int)(filter == Filter.Linear ? TextureMagFilter.Linear : TextureMagFilter.Nearest));
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+        public void SetWrapping(Wrapping wrapMode)
+        {
+            GL.BindTexture(TextureTarget.Texture2D, Handle);
             wrapping = wrapMode;
-            if (metaData.Count >= 2)
-                wrapping = (Wrapping)metaData[1].value;
             int wrap;
             if (wrapping == Wrapping.Repeat)
                 wrap = (int)TextureWrapMode.Repeat;
-            else if (wrapping == Wrapping.Clamp) 
+            else if (wrapping == Wrapping.Clamp)
                 wrap = (int)TextureWrapMode.Clamp;
             else if (wrapping == Wrapping.Mirror)
                 wrap = (int)TextureWrapMode.MirroredRepeat;
@@ -97,8 +107,8 @@ namespace Alloy.Assets
         protected override void SaveMetaData(out List<MetaDataEntry> metaData)
         {
             metaData = new List<MetaDataEntry>();
-            metaData.Add(new MetaDataEntry("Filter", filter));
-            metaData.Add(new MetaDataEntry("Wrapping", wrapping));
+            metaData.Add(new MetaDataEntry("Filter", (int)filter));
+            metaData.Add(new MetaDataEntry("Wrapping", (int)wrapping));
         }
     }
 }

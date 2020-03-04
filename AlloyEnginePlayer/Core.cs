@@ -8,6 +8,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using Alloy.Assets;
 using Alloy.Components;
+using System.Reflection;
 
 namespace Alloy
 {
@@ -25,18 +26,14 @@ namespace Alloy
             base.OnLoad(e);
             Logging.LogInfo(this, "Initializing");
             AssetDatabase.Init();
-            AssetDatabase.Load(0, 1, 2, 3, 4);
-            s = AssetDatabase.GetAsset<Scene>(3);
+            User.UserCodeDatabase.LoadAssembly("Assets/Scripts/Turntable.dll");
 
-            //var cam = s.AddEntity("Camera");
-            //cam.Value.AddComponent<Camera>();
-            //var monument = s.AddEntity("Monument");
-            //var meshRenderer = monument.Value.AddComponent<ModelRenderer>();
-            //meshRenderer.SetModel(AssetDatabase.GetAsset<Model>(0));
-            //meshRenderer.SetMaterial(AssetDatabase.GetAsset<Material>(4), 0);
-            //s.Apply();
+            AssetDatabase.Load(3);
+            s = AssetDatabase.GetAsset<Scene>(3);
+            AssetDatabase.Load(2);
 
             GL.Disable(EnableCap.CullFace);
+            GL.Enable(EnableCap.DepthTest);
         }
 
         //Loop

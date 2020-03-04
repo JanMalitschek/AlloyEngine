@@ -41,7 +41,7 @@ namespace Alloy
             Transform viewTransform = new Transform();
             if (activeCamera != null)
                 viewTransform = activeCamera.transform;
-            ViewMat = viewTransform.GetTransformationMatrix();
+            ViewMat = viewTransform.GetTransformationMatrix(true);
             ProjMat = Matrix4.CreatePerspectiveFieldOfView(
                 MathHelper.DegreesToRadians(activeCamera != null ? activeCamera.fov : 60.0f),
                 aspectRatio,

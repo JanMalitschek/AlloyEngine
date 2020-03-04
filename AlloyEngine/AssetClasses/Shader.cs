@@ -21,7 +21,7 @@ namespace Alloy.Assets
             public object value;
             public int location;
 
-            public void Pass()
+            public void Pass(ref int textureIndex)
             {
                 if (type == typeof(float))
                     GL.Uniform1(location, (float)value);
@@ -39,7 +39,12 @@ namespace Alloy.Assets
                     GL.UniformMatrix4(location, false, ref mat);
                 }
                 if (type == typeof(Texture))
-                    GL.Uniform1(location, ((Texture)value).Handle);
+                {
+                    int handle = ((Texture)value).Handle;
+                    GL.ActiveTexture(TextureUnit.Texture0 + textureIndex);
+                    GL.BindTexture(TextureTarget.Texture2D, handle);
+                    GL.Uniform1(location, textureIndex++);
+                }
             }
         }
         public List<Uniform> uniforms { get; private set; } = new List<Uniform>();

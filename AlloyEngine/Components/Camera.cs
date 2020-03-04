@@ -17,6 +17,12 @@ namespace Alloy.Components
         public Color4 clearColor = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
         public int renderedLayers = 0xFFFF; //Renders all layers by default
 
+        public override void OnInit()
+        {
+            SetMain();
+            
+        }
+
         public void SetMain()
         {
             RenderPipeline.activeCamera = this;

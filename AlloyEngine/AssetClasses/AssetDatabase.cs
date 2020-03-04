@@ -59,13 +59,15 @@ namespace Alloy.Assets
                 case ".png": return "Texture";
                 case ".alloy": return "Scene";
                 case ".mat": return "Material";
+                case ".cs": return "Script";
+                case ".dll": return "Assembly";
                 default: return "Unsupported";
             }
         }
 
         private static bool IsTypeAtomic(string type)
         {
-            return type == "Model" || type == "Shader" || type == "Texture";
+            return type == "Model" || type == "Shader" || type == "Texture" || type == "Script" || type == "Assembly";
         }
 
         public static bool Import (string path)
@@ -118,6 +120,9 @@ namespace Alloy.Assets
                 loadedAssets.Add(new Texture(path));
             else if (a[0].Item2 == "Material")
                 loadedAssets.Add(new Material(a[0].Item1));
+            else
+                return;
+            loadedAssets.Last().ID = a[0].Item3;
         }
         public static void Load(params string[] paths)
         {
@@ -211,7 +216,6 @@ namespace Alloy.Assets
         #region Asset Creation
         public static int CreateMaterial(string path)
         {
-            System.IO.File.Create(path);
             XMLAbstraction mat = new XMLAbstraction("Material");
             mat.Save(path);
             if (!Import(path))

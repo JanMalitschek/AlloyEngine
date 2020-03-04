@@ -62,7 +62,6 @@ namespace Alloy
         {
             components.Add(Activator.CreateInstance<T>());
             components.Last().transform = transform;
-            components.Last().OnInit();
             return components.Last() as T;
         }
         public object AddComponent(Type t)
@@ -71,7 +70,6 @@ namespace Alloy
             {
                 components.Add(Activator.CreateInstance(t) as Component);
                 components.Last().transform = transform;
-                components.Last().OnInit();
                 return components.Last();
             }
             else

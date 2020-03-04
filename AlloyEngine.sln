@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlloyEnginePlayer", "AlloyEnginePlayer\AlloyEnginePlayer.csproj", "{85F254D0-1ADE-4569-8FF6-128ACBA768B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlloyEngine", "AlloyEngine\AlloyEngine.csproj", "{CDAD84BC-5FAF-4B4A-92D4-A1B051418E3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlloyEngine", "AlloyEngine\AlloyEngine.csproj", "{CDAD84BC-5FAF-4B4A-92D4-A1B051418E3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlloyCompiler", "AlloyCompiler\AlloyCompiler.csproj", "{0E3E7565-522C-40B4-BFF9-A2C618B2D7A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{CDAD84BC-5FAF-4B4A-92D4-A1B051418E3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDAD84BC-5FAF-4B4A-92D4-A1B051418E3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDAD84BC-5FAF-4B4A-92D4-A1B051418E3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E3E7565-522C-40B4-BFF9-A2C618B2D7A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E3E7565-522C-40B4-BFF9-A2C618B2D7A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E3E7565-522C-40B4-BFF9-A2C618B2D7A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E3E7565-522C-40B4-BFF9-A2C618B2D7A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
