@@ -9,6 +9,7 @@ using OpenTK.Graphics.OpenGL;
 using Alloy.Assets;
 using Alloy.Components;
 using System.Reflection;
+using OpenTK.Input;
 
 namespace Alloy
 {
@@ -27,6 +28,8 @@ namespace Alloy
             Logging.LogInfo(this, "Initializing");
             AssetDatabase.Init();
             User.UserCodeDatabase.LoadAssembly("Assets/Scripts/Turntable.dll");
+            User.UserCodeDatabase.LoadAssembly("Assets/Scripts/CameraController.dll");
+            Input.Init(this);
 
             AssetDatabase.Load(3);
             s = AssetDatabase.GetAsset<Scene>(3);
@@ -40,6 +43,9 @@ namespace Alloy
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             Time.UpdateTime(e.Time);
+            Input.Update();
+            if (Input.GetKey(Key.Space))
+                Logging.LogSimple("Down");
         }
 
         //Render Loop

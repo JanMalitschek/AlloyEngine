@@ -35,7 +35,9 @@ namespace AlloyCompiler
                         code += r.ReadLine();
                 CSharpCodeProvider provider = new CSharpCodeProvider();
                 CompilerParameters parameters = new CompilerParameters();
-                parameters.ReferencedAssemblies.Add((new Uri(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase))).LocalPath + @"\AlloyEngine.dll");
+                string currentPath = (new Uri(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase))).LocalPath;
+                parameters.ReferencedAssemblies.Add(currentPath + @"\AlloyEngine.dll");
+                parameters.ReferencedAssemblies.Add(currentPath + @"\OpenTK.dll");
                 parameters.ReferencedAssemblies.Add("System.dll");
                 parameters.ReferencedAssemblies.Add("System.Core.dll");
                 parameters.ReferencedAssemblies.Add("System.Runtime.dll");

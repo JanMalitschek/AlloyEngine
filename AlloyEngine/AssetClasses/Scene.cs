@@ -170,6 +170,11 @@ namespace Alloy.Assets
         {
             bool enabled = Convert.ToBoolean(componentNode.Attributes["enabled"].Value);
             Type type = UserCodeDatabase.GetType(componentNode.Attributes["name"].Value);
+            if (type == null)
+            {
+                Logging.LogWarning(this, $"The component {componentNode.Attributes["name"].Value} could not be found!");
+                return;
+            }
             Component c = e.AddComponent(type) as Component;
             c.enabled = enabled;
 

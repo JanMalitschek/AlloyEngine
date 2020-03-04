@@ -80,11 +80,11 @@ namespace Alloy
 
         public Matrix4 GetTransformationMatrix(bool invert = false)
         {
-            var T = Matrix4.CreateTranslation(position * (invert ? -1.0f : 1.0f));
+            var T = Matrix4.CreateTranslation(position);
             var eulerAngles = rotation.ToAxisAngle();
-            var Rx = Matrix4.CreateRotationX(eulerAngles.X * eulerAngles.W);
-            var Ry = Matrix4.CreateRotationY(eulerAngles.Y * eulerAngles.W + MathHelper.DegreesToRadians(invert ? 180.0f : 0.0f));
-            var Rz = Matrix4.CreateRotationZ(eulerAngles.Z * eulerAngles.W);
+            var Rx = Matrix4.CreateRotationX(eulerAngles.X * -eulerAngles.W);
+            var Ry = Matrix4.CreateRotationY(eulerAngles.Y * -eulerAngles.W);
+            var Rz = Matrix4.CreateRotationZ(eulerAngles.Z * -eulerAngles.W);
             var R = Rz * Ry * Rx;
             var S = Matrix4.CreateScale(scale);
             return T * R * S;
