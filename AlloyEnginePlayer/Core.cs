@@ -10,6 +10,7 @@ using Alloy.Assets;
 using Alloy.Components;
 using System.Reflection;
 using OpenTK.Input;
+using Alloy.User;
 
 namespace Alloy
 {
@@ -27,9 +28,9 @@ namespace Alloy
             base.OnLoad(e);
             Logging.LogInfo(this, "Initializing");
             AssetDatabase.Init();
-            User.UserCodeDatabase.LoadAssembly("Assets/Scripts/Turntable.dll");
-            User.UserCodeDatabase.LoadAssembly("Assets/Scripts/CameraController.dll");
-            Input.Init(this);
+            UserCodeDatabase.Init();
+
+            Input.Init();
 
             AssetDatabase.Load(3);
             s = AssetDatabase.GetAsset<Scene>(3);

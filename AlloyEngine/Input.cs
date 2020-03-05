@@ -25,7 +25,7 @@ namespace Alloy
         private static Vector2 lastMousePos;
         public static Vector2 MouseDelta { get; private set; }
 
-        public static void Init(GameWindow window)
+        public static void Init()
         {
             keyboardInput = new InputContainer[Enum.GetNames(typeof(Key)).Length];
             mouseInput = new InputContainer[Enum.GetNames(typeof(MouseButton)).Length];
