@@ -48,7 +48,7 @@ namespace Alloy.Assets
         public void SetUniform(string name, object value)
         {
             for (int i = 0; i < Uniforms.Count; i++)
-                if (Uniforms[i].name == name && Uniforms[i].type == value.GetType())
+                if (Uniforms[i].name == name && (Uniforms[i].type == value.GetType() || value.GetType().IsSubclassOf(Uniforms[i].type)))
                 {
                     Shader.Uniform uniform = Uniforms[i];
                     uniform.value = value;
@@ -57,14 +57,13 @@ namespace Alloy.Assets
                 }
         }
 
-        public void Pass()
+        public void Pass(int texIdx)
         {
             if (shader == null)
                 return;
             shader.Use();
-            int textureIdx = 0;
             foreach (Shader.Uniform u in Uniforms)
-                u.Pass(ref textureIdx);
+                u.Pass(ref texIdx);
         }
 
         protected override void SaveMetaData(out List<MetaDataEntry> metaData)

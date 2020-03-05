@@ -5,17 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-
 namespace Alloy.Assets
 {
     public class Texture : Asset
     {
-        public int Handle { get; private set; }
-        private Image<Rgba32> pixels;
+        public int Handle { get; protected set; }
 
         public enum Filter
         {
@@ -31,28 +25,10 @@ namespace Alloy.Assets
         }
         public Wrapping wrapping = Wrapping.Repeat;
 
-        public Texture (string path, Filter filterMode = Filter.Linear, Wrapping wrapMode = Wrapping.Repeat, bool generateMipMaps = true) : base(path)
+        public Texture(string path, bool generate = true) : base(path)
         {
-            pixels = (Image<Rgba32>)Image.Load(path);
-
-            var tempPixels = pixels.GetPixelSpan();
-            List<byte> bytePixels = new List<byte>();
-            foreach (Rgba32 c in tempPixels)
-            {
-                bytePixels.Add(c.R);
-                bytePixels.Add(c.G);
-                bytePixels.Add(c.B);
-                bytePixels.Add(c.A);
-            }
-            Handle = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, Handle);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, pixels.Width, pixels.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, bytePixels.ToArray());
-
-            var metaData = LoadMetaData();
-
-            SetFilter(metaData.Count >= 1 ? (Filter)Convert.ToInt32(metaData[0].value) : filterMode, generateMipMaps);
-
-            SetWrapping(metaData.Count >= 2 ? (Wrapping)Convert.ToInt32(metaData[1].value) : wrapMode);
+            if(generate)
+                Handle = GL.GenTexture();
         }
 
         public void SetFilter(Filter filterMode, bool generateMipMaps = true)

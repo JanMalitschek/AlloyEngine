@@ -49,7 +49,10 @@ namespace Alloy.Assets
         }
         public static bool HasMetaData(string path)
         {
-            return System.IO.File.Exists(System.IO.Path.GetDirectoryName(path) + "/" + System.IO.Path.GetFileNameWithoutExtension(path) + ".meta");
+            if (path != "")
+                return System.IO.File.Exists(System.IO.Path.GetDirectoryName(path) + "/" + System.IO.Path.GetFileNameWithoutExtension(path) + ".meta");
+            else
+                return false;
         }
         public static void WriteDefaultMetaData(int id, string path)
         {
@@ -116,15 +119,18 @@ namespace Alloy.Assets
         protected List<MetaDataEntry> LoadMetaData()
         {
             List<MetaDataEntry> metaData = new List<MetaDataEntry>();
-            XmlDocument xml = new XmlDocument();
-            xml.Load(MetaDataPath);
-            XmlNodeList entries = xml.SelectNodes("//Metadata/*[local-name()='Data']");
-            foreach(XmlNode e in entries)
+            if (HasMetaData(Path))
             {
-                string name = e.Attributes["name"].Value;
-                Type type = Type.GetType(e.Attributes["type"].Value);
-                object value = Convert.ChangeType(e.Attributes["value"].Value, type);
-                metaData.Add(new MetaDataEntry(name, value));
+                XmlDocument xml = new XmlDocument();
+                xml.Load(MetaDataPath);
+                XmlNodeList entries = xml.SelectNodes("//Metadata/*[local-name()='Data']");
+                foreach (XmlNode e in entries)
+                {
+                    string name = e.Attributes["name"].Value;
+                    Type type = Type.GetType(e.Attributes["type"].Value);
+                    object value = Convert.ChangeType(e.Attributes["value"].Value, type);
+                    metaData.Add(new MetaDataEntry(name, value));
+                }
             }
             return metaData;
         }

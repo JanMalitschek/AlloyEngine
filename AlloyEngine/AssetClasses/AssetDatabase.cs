@@ -56,7 +56,7 @@ namespace Alloy.Assets
                 case ".dae": return "Model";
                 case ".glsl": return "Shader";
                 case ".shader": return "Shader";
-                case ".png": return "Texture";
+                case ".png": return "Texture2D";
                 case ".alloy": return "Scene";
                 case ".mat": return "Material";
                 case ".cs": return "Script";
@@ -67,7 +67,7 @@ namespace Alloy.Assets
 
         private static bool IsTypeAtomic(string type)
         {
-            return type == "Model" || type == "Shader" || type == "Texture" || type == "Script" || type == "Assembly";
+            return type == "Model" || type == "Shader" || type == "Texture2D" || type == "Script" || type == "Assembly";
         }
 
         public static bool Import (string path)
@@ -116,8 +116,8 @@ namespace Alloy.Assets
                 loadedAssets.Add(new Scene(path));
             else if (a[0].Item2 == "Shader")
                 loadedAssets.Add(new Shader(path));
-            else if (a[0].Item2 == "Texture")
-                loadedAssets.Add(new Texture(path));
+            else if (a[0].Item2 == "Texture2D")
+                loadedAssets.Add(new Texture2D(path));
             else if (a[0].Item2 == "Material")
                 loadedAssets.Add(new Material(a[0].Item1));
             else
@@ -147,8 +147,8 @@ namespace Alloy.Assets
                 loadedAssets.Add(new Scene(a[0].Item1));
             else if (a[0].Item2 == "Shader")
                 loadedAssets.Add(new Shader(a[0].Item1));
-            else if (a[0].Item2 == "Texture")
-                loadedAssets.Add(new Texture(a[0].Item1));
+            else if (a[0].Item2 == "Texture2D")
+                loadedAssets.Add(new Texture2D(a[0].Item1));
             else if (a[0].Item2 == "Material")
                 loadedAssets.Add(new Material(a[0].Item1));
             else

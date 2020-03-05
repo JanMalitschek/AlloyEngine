@@ -52,8 +52,9 @@ namespace Alloy.Components
             {
                 if(i < materials.Length)
                 {
-                    RenderPipeline.PassPredefinedUniforms(materials[i].PredefinedUniforms, this, materials[i].shader);
-                    materials[i].Pass();
+                    int texIdx = 0;
+                    RenderPipeline.PassPredefinedUniforms(materials[i].PredefinedUniforms, this, materials[i].shader, ref texIdx);
+                    materials[i].Pass(texIdx);
                     model.meshes[meshIdx].subMeshes[i].vao.Bind();
                     GL.DrawElements(BeginMode.Triangles, model.meshes[meshIdx].subMeshes[i].NumIndices, DrawElementsType.UnsignedInt, 0);
                 }

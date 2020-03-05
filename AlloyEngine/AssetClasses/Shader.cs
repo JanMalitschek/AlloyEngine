@@ -40,7 +40,7 @@ namespace Alloy.Assets
                 }
                 if (type == typeof(Texture))
                 {
-                    int handle = ((Texture)value).Handle;
+                    int handle = (value as Texture).Handle;
                     GL.ActiveTexture(TextureUnit.Texture0 + textureIndex);
                     GL.BindTexture(TextureTarget.Texture2D, handle);
                     GL.Uniform1(location, textureIndex++);
@@ -121,6 +121,8 @@ namespace Alloy.Assets
                                     predefinedUniforms.Add(RenderPipeline.PredefinedUniforms.a_view);
                                 else if (name == "a_proj")
                                     predefinedUniforms.Add(RenderPipeline.PredefinedUniforms.a_proj);
+                                else if (name == "a_screen")
+                                    predefinedUniforms.Add(RenderPipeline.PredefinedUniforms.a_screen);
                                 else
                                     uniforms.Add(new Uniform { name = name, type = type });
                             }

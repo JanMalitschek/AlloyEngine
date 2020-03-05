@@ -29,15 +29,16 @@ namespace Alloy
             Logging.LogInfo(this, "Initializing");
             AssetDatabase.Init();
             UserCodeDatabase.Init();
-
+            RenderPipeline.Init(this);
             Input.Init();
+
+            AssetDatabase.Load(7);
+            Material m = AssetDatabase.GetAsset<Material>(7);
+            RenderPipeline.AddPostProcessingEffect(m);
 
             AssetDatabase.Load(3);
             s = AssetDatabase.GetAsset<Scene>(3);
             AssetDatabase.Load(2);
-
-            GL.Disable(EnableCap.CullFace);
-            GL.Enable(EnableCap.DepthTest);
         }
 
         //Loop
@@ -53,9 +54,6 @@ namespace Alloy
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-
-            GL.ClearColor(Color4.Black);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             s.Update();
             RenderPipeline.Render();
