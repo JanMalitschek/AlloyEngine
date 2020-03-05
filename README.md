@@ -1,2 +1,2 @@
 # AlloyEngine
-A simple game engine written in 
+A simple game engine written in C#
