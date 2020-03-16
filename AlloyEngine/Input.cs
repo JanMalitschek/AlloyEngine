@@ -24,11 +24,13 @@ namespace Alloy
 
         private static Vector2 lastMousePos;
         public static Vector2 MouseDelta { get; private set; }
+        public static Vector2 MousePosition { get; private set; }
 
-        public static void Init()
+        public static void Init(GameWindow window)
         {
             keyboardInput = new InputContainer[Enum.GetNames(typeof(Key)).Length];
             mouseInput = new InputContainer[Enum.GetNames(typeof(MouseButton)).Length];
+            window.MouseMove += OnMouseMove;
         }
 
         public static void Update()
@@ -107,6 +109,10 @@ namespace Alloy
         public static bool GetMouseButton(MouseButton button)
         {
             return mouseState.IsButtonDown(button);
+        }
+        static void OnMouseMove(object sender, MouseMoveEventArgs e)
+        {
+            MousePosition = new Vector2(e.X, e.Y);
         }
     }
 }

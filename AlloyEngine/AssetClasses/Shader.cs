@@ -123,6 +123,8 @@ namespace Alloy.Assets
                                     predefinedUniforms.Add(RenderPipeline.PredefinedUniforms.a_proj);
                                 else if (name == "a_screen")
                                     predefinedUniforms.Add(RenderPipeline.PredefinedUniforms.a_screen);
+                                else if(name == "a_depthStencil")
+                                    predefinedUniforms.Add(RenderPipeline.PredefinedUniforms.a_depthStencil);
                                 else
                                     uniforms.Add(new Uniform { name = name, type = type });
                             }
@@ -149,6 +151,13 @@ namespace Alloy.Assets
                 Logging.LogError(this, e.Message);
                 return;
             }
+            Compile();
+        }
+
+        public Shader(string vertexCode, string fragmentCode) : base("")
+        {
+            this.vertexCode = vertexCode;
+            this.fragmentCode = fragmentCode;
             Compile();
         }
 

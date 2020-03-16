@@ -63,6 +63,7 @@
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Threading.Thread" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -73,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core.cs" />
+    <Compile Include="EditorServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -85,6 +87,10 @@
     <Content Include="bin\Debug\AssetDatabase.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AlloyEditorInterface\AlloyEditorInterface.csproj">
+      <Project>{85df30be-24f5-4783-bcc2-f34e91a3281e}</Project>
+      <Name>AlloyEditorInterface</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AlloyEngine\AlloyEngine.csproj">
       <Project>{cdad84bc-5faf-4b4a-92d4-a1b051418e3a}</Project>
       <Name>AlloyEngine</Name>

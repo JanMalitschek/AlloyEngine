@@ -13,6 +13,7 @@ using Alloy.User;
 
 namespace Alloy.Assets
 {
+    [System.Serializable]
     public class Scene : Asset
     {
         private Tree<Entity> hierarchy;

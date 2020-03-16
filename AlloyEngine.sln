@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlloyEngine", "AlloyEngine\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlloyCompiler", "AlloyCompiler\AlloyCompiler.csproj", "{0E3E7565-522C-40B4-BFF9-A2C618B2D7A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlloyEditorInterface", "AlloyEditorInterface\AlloyEditorInterface.csproj", "{85DF30BE-24F5-4783-BCC2-F34E91A3281E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlloyEngineEditor", "AlloyEngineEditor\AlloyEngineEditor.csproj", "{A48F6D47-89EF-468F-940D-0DCFB2444969}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{0E3E7565-522C-40B4-BFF9-A2C618B2D7A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E3E7565-522C-40B4-BFF9-A2C618B2D7A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E3E7565-522C-40B4-BFF9-A2C618B2D7A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85DF30BE-24F5-4783-BCC2-F34E91A3281E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85DF30BE-24F5-4783-BCC2-F34E91A3281E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85DF30BE-24F5-4783-BCC2-F34E91A3281E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85DF30BE-24F5-4783-BCC2-F34E91A3281E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A48F6D47-89EF-468F-940D-0DCFB2444969}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A48F6D47-89EF-468F-940D-0DCFB2444969}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A48F6D47-89EF-468F-940D-0DCFB2444969}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A48F6D47-89EF-468F-940D-0DCFB2444969}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

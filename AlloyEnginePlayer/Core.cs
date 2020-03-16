@@ -30,7 +30,7 @@ namespace Alloy
             AssetDatabase.Init();
             UserCodeDatabase.Init();
             RenderPipeline.Init(this);
-            Input.Init();
+            Input.Init(this);
 
             AssetDatabase.Load(7);
             Material m = AssetDatabase.GetAsset<Material>(7);
@@ -46,8 +46,6 @@ namespace Alloy
         {
             Time.UpdateTime(e.Time);
             Input.Update();
-            if (Input.GetKey(Key.Space))
-                Logging.LogSimple("Down");
         }
 
         //Render Loop
@@ -57,6 +55,11 @@ namespace Alloy
 
             s.Update();
             RenderPipeline.Render();
+
+            if (Input.GetMouseButtonDown(MouseButton.Left))
+            {
+                Logging.LogSimple(RenderPipeline.HoveredID);
+            }
 
             SwapBuffers();
         }

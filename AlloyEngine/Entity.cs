@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Alloy.Components;
+using OpenTK.Graphics.OpenGL;
 
 namespace Alloy
 {
@@ -19,6 +20,7 @@ namespace Alloy
             this.name = name;
             active = true;
             transform = new Transform();
+            transform.entity = this;
             tags = new List<string>();
             components = new List<Component>();
             ID = id;
@@ -133,6 +135,11 @@ namespace Alloy
                 foreach (Component c in components)
                     if (c.enabled)
                         c.OnUpdate();
+        }
+
+        public void WriteToStencilBuffer()
+        {
+            GL.StencilFunc(StencilFunction.Always, ID + 1, -1);
         }
     }
 }

@@ -22,19 +22,26 @@ namespace Alloy
 
         private static List<Renderer> registeredRenderers = new List<Renderer>();
 
+        private static GameWindow window;
         //Post Processing
+        private static RenderTexture screenBuffer;
+        private static Shader screenBufferShader;
         private static RenderTexture grabPass1;
         private static RenderTexture grabPass2;
         private static bool currentGrabPass = false;
         private static Mesh ppQuad;
         public static List<Tuple<Material, bool>> ppEffects { get; private set; } = new List<Tuple<Material, bool>>();
 
+        //Selection
+        public static int HoveredID { get; private set; }
+
         public enum PredefinedUniforms
         {
             a_mod,
             a_view,
             a_proj,
-            a_screen
+            a_screen,
+            a_depthStencil
         }
 
         public static void Init(GameWindow window)
@@ -43,6 +50,30 @@ namespace Alloy
             GL.CullFace(CullFaceMode.Back);
             GL.Enable(EnableCap.DepthTest);
 
+            RenderPipeline.window = window;
+
+            screenBuffer = new RenderTexture(window.Width, window.Height, Texture.Filter.Nearest, Texture.Wrapping.Clamp);
+            screenBufferShader = new Shader(
+                @"#version 410
+                layout(location = 0) in vec3 pos;
+                layout(location = 2) in vec2 uv;
+
+                out vec2 texCoords;
+
+                void main()
+                {
+                    gl_Position = vec4(pos, 1.0);
+                    texCoords = uv;
+                }",
+                @"#version 410
+                in vec2 texCoords;
+                uniform sampler2D a_screen;
+
+                out vec4 col;
+
+                void main(){
+                    col = texture(a_screen, texCoords);
+                }");
             grabPass1 = new RenderTexture(window.Width, window.Height, Texture.Filter.Nearest, Texture.Wrapping.Clamp);
             grabPass2 = new RenderTexture(window.Width, window.Height, Texture.Filter.Nearest, Texture.Wrapping.Clamp);
 
@@ -69,16 +100,26 @@ namespace Alloy
             //Render Scene
             if (ppEffects.Count > 0)
                 grabPass1.Bind();
+            else
+                screenBuffer.Bind();
             GL.ClearColor(Color4.Black);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.ClearStencil(0);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.StencilTest);
+            GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
             GL.CullFace(CullFaceMode.Back);
             UpdateMatrices();
             foreach (Renderer r in registeredRenderers)
                 if (r.enabled)
+                {
+                    if (r.transform.entity != null)
+                        r.transform.entity.WriteToStencilBuffer();
                     r.Render();
-            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+                }
+            HoveredID = RenderTexture.ReadStencil((int)Input.MousePosition.X, window.Height - (int)Input.MousePosition.Y);
+            screenBuffer.Bind();
 
             //Do Post Processing
             currentGrabPass = false;
@@ -92,18 +133,30 @@ namespace Alloy
                         grabPass1.Bind();
                 }
                 else
-                    GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+                    screenBuffer.Bind();
                 PostProcess(i);
                 if (i < ppEffects.Count - 1)
-                    GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+                    screenBuffer.Bind();
                 currentGrabPass = !currentGrabPass;
             }
+            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+
+            //Draw final screenbuffer
+            GL.ClearColor(Color4.Black);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+            GL.Enable(EnableCap.DepthTest);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, screenBuffer.Handle);
+            screenBufferShader.Use();
+            GL.Uniform1(screenBufferShader.GetUniformLocation("a_screen"), 0);
+            ppQuad.subMeshes[0].vao.Bind();
+            GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, 0);
         }
 
         private static void PostProcess(int effetcIdx)
         {
             GL.ClearColor(Color4.Black);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
             GL.Enable(EnableCap.DepthTest);
             int texIdx = 0;
             ppEffects[effetcIdx].Item1.Pass(texIdx);
@@ -158,6 +211,14 @@ namespace Alloy
                         else
                             GL.BindTexture(TextureTarget.Texture2D, grabPass2.Handle);
                         GL.Uniform1(s.GetUniformLocation("a_screen"), texIdx++);
+                        break;
+                    case PredefinedUniforms.a_depthStencil:
+                        GL.ActiveTexture(TextureUnit.Texture0 + texIdx);
+                        if (!currentGrabPass)
+                            GL.BindTexture(TextureTarget.Texture2D, grabPass1.depthStencil);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, grabPass2.depthStencil);
+                        GL.Uniform1(s.GetUniformLocation("a_depthStencil"), texIdx++);
                         break;
                 }
             }

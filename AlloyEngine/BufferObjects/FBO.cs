@@ -16,9 +16,9 @@ namespace Alloy.BufferObjects
         {
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, textureHandle, 0);
         }
-        public void AttachDepthTexture(int textureHandle)
+        public void AttachDepthStencilTexture(int textureHandle)
         {
-            GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, TextureTarget.Texture2D, textureHandle, 0);
+            GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthStencilAttachment, TextureTarget.Texture2D, textureHandle, 0);
         }
 
         public void AttachRenderbuffer(RBO rbo)
