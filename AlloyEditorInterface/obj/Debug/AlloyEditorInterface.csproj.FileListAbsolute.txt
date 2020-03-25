@@ -4,3 +4,6 @@ C:\Users\Aprikosis\source\repos\AlloyEngine\AlloyEditorInterface\bin\Debug\Alloy
 C:\Users\Aprikosis\source\repos\AlloyEngine\AlloyEditorInterface\obj\Debug\AlloyEditorInterface.csprojAssemblyReference.cache
 C:\Users\Aprikosis\source\repos\AlloyEngine\AlloyEditorInterface\obj\Debug\AlloyEditorInterface.dll
 C:\Users\Aprikosis\source\repos\AlloyEngine\AlloyEditorInterface\obj\Debug\AlloyEditorInterface.pdb
+C:\Users\Aprikosis\source\repos\AlloyEngine\AlloyEditorInterface\bin\Debug\AlloyEngine.dll
+C:\Users\Aprikosis\source\repos\AlloyEngine\AlloyEditorInterface\bin\Debug\AlloyEngine.pdb
+C:\Users\Aprikosis\source\repos\AlloyEngine\AlloyEditorInterface\obj\Debug\AlloyEditorInterface.csproj.CopyComplete

@@ -12,8 +12,8 @@ namespace Alloy.Assets
     {
         //Assets
         private static List<Asset> loadedAssets = new List<Asset>();
-        private static List<Tuple<string, string, int>> atomicAssetsInProject = new List<Tuple<string, string, int>>();
-        private static List<Tuple<string, string, int>> composedAssetsInProject = new List<Tuple<string, string, int>>();
+        public static List<Tuple<string, string, int>> atomicAssetsInProject { get; private set; } = new List<Tuple<string, string, int>>();
+        public static List<Tuple<string, string, int>> composedAssetsInProject { get; private set; } = new List<Tuple<string, string, int>>();
 
         //ID Management
         private static int currentID = 0;

@@ -56,6 +56,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AssetBrowser.xaml.cs">
+      <DependentUpon>AssetBrowser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EditorUI.cs" />
+    <Compile Include="EnumToIntConverter.cs" />
+    <Compile Include="ObjectToBooleanConverter.cs" />
+    <Compile Include="Utility\UIUtil.cs" />
+    <Page Include="AssetBrowser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

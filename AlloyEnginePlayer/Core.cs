@@ -32,9 +32,9 @@ namespace Alloy
             RenderPipeline.Init(this);
             Input.Init(this);
 
-            AssetDatabase.Load(7);
-            Material m = AssetDatabase.GetAsset<Material>(7);
-            RenderPipeline.AddPostProcessingEffect(m);
+            //AssetDatabase.Load(7);
+            //Material m = AssetDatabase.GetAsset<Material>(7);
+            //RenderPipeline.AddPostProcessingEffect(m);
 
             AssetDatabase.Load(3);
             s = AssetDatabase.GetAsset<Scene>(3);
@@ -46,6 +46,7 @@ namespace Alloy
         {
             Time.UpdateTime(e.Time);
             Input.Update();
+            ExternalCallQueue.Run();
         }
 
         //Render Loop

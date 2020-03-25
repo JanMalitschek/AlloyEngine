@@ -7,17 +7,19 @@
         mc:Ignorable="d"
         Title="Alloy Editor" Height="600" Width="800">
     <Grid>
-        <Grid Margin="0,30,0,0"/>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <ListView Grid.ColumnSpan="3" Grid.Row="1" x:Name="Asset Database">
-        </ListView>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30px"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ToolBarTray>
+            <ToolBar>
+                <Button Content="Asset Browser" Click="OpenAssetBrowser"/>
+            </ToolBar>
+        </ToolBarTray>
     </Grid>
 </Window>

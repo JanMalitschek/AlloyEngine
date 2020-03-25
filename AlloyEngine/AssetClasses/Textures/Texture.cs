@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
@@ -11,16 +12,23 @@ namespace Alloy.Assets
     {
         public int Handle { get; protected set; }
 
+        [DataContract]
         public enum Filter
         {
+            [EnumMember]
             Linear,
+            [EnumMember]
             Nearest
         }
         public Filter filter = Filter.Linear;
+        [DataContract]
         public enum Wrapping
         {
+            [EnumMember]
             Repeat,
+            [EnumMember]
             Clamp,
+            [EnumMember]
             Mirror
         }
         public Wrapping wrapping = Wrapping.Repeat;
